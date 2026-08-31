@@ -61,7 +61,7 @@ body.is-loading .timeline { opacity: 0; }
 
 .layer--timeline { z-index: 10; }
 .layer--trip { z-index: 20; }
-.layer--header { z-index: 30; }
+.layer--header { z-index: 50; }   /* above the article, so back is always there */
 .layer--timeline.is-inert, .layer--timeline.is-inert .tl-item { pointer-events: none; }
 
 .grid {
