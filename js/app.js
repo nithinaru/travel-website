@@ -61,7 +61,8 @@
     fs: 20,
     items: [],
     trips: [],
-    shownYear: null
+    shownYear: null,
+    yearCells: null
   };
 
   /* ------------------------------------------------------------- utilities */
@@ -161,29 +162,81 @@
     el.back.addEventListener('click', goBack);
   }
 
-  // The year rolls over rather than swapping.
-  function setYear(value, immediate) {
-    if (state.shownYear === value) return;
-    var previous = state.shownYear;
-    state.shownYear = value;
-
-    if (immediate || previous === null || reduceMotion) {
-      el.year.textContent = value;
-      return;
+  // The year is kept as a row of digit cells so a change can roll only the
+  // digits that actually differ; matching leading digits are never touched.
+  function yearCells(count) {
+    var cells = state.yearCells;
+    var gone;
+    var cell;
+    if (!cells) {
+      cells = state.yearCells = [];
+      el.year.textContent = '';
     }
+    while (cells.length > count) {
+      gone = cells.pop();
+      stopRoll(gone);
+      el.year.removeChild(gone);
+    }
+    while (cells.length < count) {
+      cell = document.createElement('span');
+      cell.className = 'year-digit';
+      cells.push(cell);
+      el.year.appendChild(cell);
+    }
+    return cells;
+  }
 
-    el.year.textContent = '';
+  function stopRoll(cell) {
+    if (cell.rollTimer) {
+      window.clearTimeout(cell.rollTimer);
+      cell.rollTimer = 0;
+    }
+  }
+
+  function setDigit(cell, digit) {
+    stopRoll(cell);
+    // Guarded so an unchanged digit is not re-rendered for nothing.
+    if (cell.textContent !== digit) cell.textContent = digit;
+  }
+
+  // The digit rolls over rather than swapping.
+  function rollDigit(cell, previous, next) {
+    stopRoll(cell);
+    cell.textContent = '';
     var out = document.createElement('span');
     out.className = 'year-out';
     out.textContent = previous;
     var into = document.createElement('span');
     into.className = 'year-in';
-    into.textContent = value;
-    el.year.appendChild(out);
-    el.year.appendChild(into);
-    window.setTimeout(function () {
-      if (state.shownYear === value) el.year.textContent = value;
+    into.textContent = next;
+    cell.appendChild(out);
+    cell.appendChild(into);
+    // Each cell owns its own settle timer and clears it before starting the
+    // next roll, so a year arriving mid-animation can never strand a digit.
+    cell.rollTimer = window.setTimeout(function () {
+      cell.rollTimer = 0;
+      cell.textContent = next;
     }, 460);
+  }
+
+  function setYear(value, immediate) {
+    if (state.shownYear === value) return;
+    var previous = state.shownYear;
+    state.shownYear = value;
+
+    var next = String(value);
+    var old = previous === null ? '' : String(previous);
+    var cells = yearCells(next.length);
+    // A differing length has no digit-to-digit mapping, so it just snaps.
+    var snap = immediate || previous === null || reduceMotion || old.length !== next.length;
+    var i;
+
+    for (i = 0; i < next.length; i++) {
+      if (snap) setDigit(cells[i], next.charAt(i));
+      // An unchanged digit is left completely untouched, so it cannot flicker
+      // or re-render. A roll still in flight on it targets this same digit.
+      else if (old.charAt(i) !== next.charAt(i)) rollDigit(cells[i], old.charAt(i), next.charAt(i));
+    }
   }
 
   /* ------------------------------------------------------------------ layout */

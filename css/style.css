@@ -124,10 +124,24 @@ body.is-loading .timeline { opacity: 0; }
   white-space: nowrap;
 }
 
-.header-year { position: relative; display: inline-block; }
+/* Tabular figures plus a floor of one character width: a digit cell keeps the
+   same box whether it holds plain text or a rolling pair, so nothing shifts
+   sideways while some of the digits animate. */
+.header-year {
+  position: relative;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.header-year .year-digit {
+  position: relative;
+  display: inline-block;
+  min-width: 1ch;
+  text-align: center;
+}
 .header-year .year-out,
 .header-year .year-in { display: block; }
-.header-year .year-out { position: absolute; top: 0; left: 0; }
+.header-year .year-out { position: absolute; top: 0; left: 0; right: 0; }
 
 @keyframes yearIn  { from { opacity: 0; transform: translateY(0.42em); } to { opacity: 1; transform: none; } }
 @keyframes yearOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-0.42em); } }
