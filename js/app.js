@@ -46,8 +46,7 @@
     postHero: $('postHero'),
     postText: $('postText'),
     about: $('about'),
-    aboutInner: $('aboutInner'),
-    hint: $('hint')
+    aboutInner: $('aboutInner')
   };
 
   var state = {
@@ -186,25 +185,6 @@
       if (state.shownYear === value) el.year.textContent = value;
     }, 460);
   }
-
-  var hintTimer = null;
-
-  function showHint(text) {
-    window.clearTimeout(hintTimer);
-    if (!text) { el.hint.classList.remove('is-visible'); return; }
-    el.hint.textContent = text;
-    el.hint.classList.add('is-visible');
-    hintTimer = window.setTimeout(function () {
-      el.hint.classList.remove('is-visible');
-    }, 6000);
-  }
-
-  var HINT_TIMELINE = isNarrow()
-    ? 'Swipe sideways · tap a trip'
-    : 'Drag or scroll sideways · click a trip';
-  var HINT_TRIP = isNarrow()
-    ? 'Swipe left and right · tap the photo to read'
-    : 'Left and right for other trips · scroll down for the story';
 
   /* ------------------------------------------------------------------ layout */
 
@@ -524,7 +504,6 @@
 
     // the text on the left arrives once the photo has settled
     showMeta(t, true, 560);
-    showHint(HINT_TRIP);
   }
 
   function closeTrip() {
@@ -557,7 +536,6 @@
       updateFocus();
     });
 
-    showHint(HINT_TIMELINE);
   }
 
   // Sideways while zoomed in: the whole track slides, nothing fades.
@@ -674,7 +652,6 @@
     hideMeta(t, true);
 
     setLevel('post');
-    showHint('');
 
     animateTo(el.post, { opacity: 0 }, { opacity: '1' }, { duration: 420, easing: 'ease' });
 
@@ -702,7 +679,6 @@
     var scrolled = el.postScroll.scrollTop > 40;
 
     setLevel('trip');
-    showHint(HINT_TRIP);
 
     var finish = function () {
       el.post.hidden = true;
@@ -963,7 +939,6 @@
 
     if (reduceMotion) {
       rule.classList.add('is-visible');
-      showHint(HINT_TIMELINE);
       return;
     }
 
@@ -980,7 +955,6 @@
     });
 
     window.setTimeout(function () { rule.classList.add('is-visible'); }, 500);
-    window.setTimeout(function () { showHint(HINT_TIMELINE); }, 1600);
   }
 
   /* ------------------------------------------------------------------- boot */
