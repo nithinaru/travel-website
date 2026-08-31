@@ -667,22 +667,25 @@
     var body = el.postText.querySelector('.post-body');
     (trip.body || []).forEach(function (block) {
       var node;
-      if (block.h) {
-        node = document.createElement('h3');
-        node.textContent = block.h;
-      } else if (block.quote) {
-        node = document.createElement('blockquote');
-        node.textContent = block.quote;
-      } else if (block.img) {
+      // img is tested first: a picture block also carries h, its pixel height
+      if (block.img) {
         node = document.createElement('figure');
         var pic = document.createElement('div');
         pic.style.backgroundImage = 'url("' + block.img + '")';
+        // the photo's own shape, so nothing is cropped or letterboxed
+        if (block.w && block.h) pic.style.aspectRatio = block.w + ' / ' + block.h;
         node.appendChild(pic);
         if (block.caption) {
           var cap = document.createElement('figcaption');
           cap.textContent = block.caption;
           node.appendChild(cap);
         }
+      } else if (block.h) {
+        node = document.createElement('h3');
+        node.textContent = block.h;
+      } else if (block.quote) {
+        node = document.createElement('blockquote');
+        node.textContent = block.quote;
       } else {
         node = document.createElement('p');
         node.textContent = block.p || '';
