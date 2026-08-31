@@ -27,7 +27,7 @@ window.TRIPS = [
   {
     id: "scotland",
     title: "Scotland",
-    place: "Scotland",
+    place: "Highlands & Skye",
     blurb: "Castles, lochs and the Isle of Skye",
     date: "July 2024",
     year: 2024,
