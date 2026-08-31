@@ -257,21 +257,6 @@ body.level-post .back {
 
 .tl-item.is-focused::after { opacity: 1; transform: translateX(-50%); }
 
-.timeline-rule {
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--ink-faint);
-  opacity: 0;
-  transition: opacity 0.8s var(--ease-soft);
-  pointer-events: none;
-}
-
-.timeline-rule.is-visible { opacity: 1; }
-body.level-trip .timeline-rule,
-body.level-post .timeline-rule { opacity: 0; }
-
 /* ---------------------------------------------------------------------------
    Level 1 — one trip. All trips live side by side on one track that slides.
 --------------------------------------------------------------------------- */

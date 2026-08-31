@@ -60,8 +60,7 @@
     fs: 20,
     items: [],
     trips: [],
-    shownYear: null,
-    rule: null
+    shownYear: null
   };
 
   /* ------------------------------------------------------------- utilities */
@@ -897,16 +896,8 @@
   function intro() {
     el.body.classList.remove('is-loading');
 
-    var rule = document.createElement('div');
-    rule.className = 'timeline-rule';
-    document.body.appendChild(rule);
-    rule.style.top = Math.round(state.band.bottom) + 'px';
-    state.rule = rule;
 
-    if (reduceMotion) {
-      rule.classList.add('is-visible');
-      return;
-    }
+    if (reduceMotion) return;
 
     el.chrome.animate([
       { opacity: 0, transform: 'translateY(12px)' },
@@ -920,7 +911,6 @@
       ], { duration: 1000, delay: 220 + i * 70, easing: SOFT, fill: 'backwards' });
     });
 
-    window.setTimeout(function () { rule.classList.add('is-visible'); }, 500);
   }
 
   /* ------------------------------------------------------------------- boot */
@@ -932,7 +922,6 @@
     applyScroll();
     if (state.level === 'trip' || state.level === 'post') setTrack(state.index, false);
     if (state.level === 'post') layoutHero(TRIPS[state.index]);
-    if (state.rule) state.rule.style.top = Math.round(state.band.bottom) + 'px';
     updateFocus();
   }
 
