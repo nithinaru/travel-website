@@ -584,12 +584,7 @@
       '<div class="post-kicker"></div>' +
       '<h1 class="post-title"></h1>' +
       '<p class="post-standfirst"></p>' +
-      '<div class="post-body"></div>' +
-      '<div class="post-end">' +
-        '<span data-clickable data-post-prev>Earlier trip</span>' +
-        '<span data-clickable data-post-close>Close</span>' +
-        '<span data-clickable data-post-next>Later trip</span>' +
-      '</div>';
+      '<div class="post-body"></div>';
 
     el.postText.querySelector('.post-kicker').textContent = trip.place + ' · ' + trip.date;
     el.postText.querySelector('.post-title').textContent = trip.title;
@@ -620,14 +615,6 @@
       }
       body.appendChild(node);
     });
-
-    var prev = el.postText.querySelector('[data-post-prev]');
-    var next = el.postText.querySelector('[data-post-next]');
-    if (i >= TRIPS.length - 1) prev.style.visibility = 'hidden';
-    if (i <= 0) next.style.visibility = 'hidden';
-    prev.addEventListener('click', function () { swapPost(i + 1); });
-    next.addEventListener('click', function () { swapPost(i - 1); });
-    el.postText.querySelector('[data-post-close]').addEventListener('click', closePost);
   }
 
   function openPost() {
@@ -705,27 +692,6 @@
     showMeta(t, true, 480);
 
     fly(t.trip.image, from, to, 720, 'center', finish);
-  }
-
-  function swapPost(i) {
-    if (state.busy || i < 0 || i >= TRIPS.length) return;
-    state.index = i;
-    activate(i);
-    layoutTrip(i);
-    setTrack(i, false);
-    markTimelineGap(i);
-    scrollToIndex(i);
-    setYear(TRIPS[i].year);
-    state.trips.forEach(function (t, k) { if (k !== i) hideMeta(t, false); });
-
-    var fade = animateTo(el.postText, { opacity: 1 }, { opacity: '0' }, { duration: 200, easing: 'ease' });
-    after(fade, 200, function () {
-      el.postHero.style.backgroundImage = 'url("' + TRIPS[i].image + '")';
-      renderPost(i);
-      layoutHero(TRIPS[i]);
-      el.postScroll.scrollTop = 0;
-      animateTo(el.postText, { opacity: 0 }, { opacity: '1' }, { duration: 340, easing: 'ease' });
-    });
   }
 
   function goBack() {

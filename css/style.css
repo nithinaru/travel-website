@@ -465,20 +465,6 @@ body.level-post .timeline-rule { opacity: 0; }
 .post-body figure div { width: 100%; aspect-ratio: 16 / 10; background-size: cover; background-position: center; }
 .post-body figcaption { margin-top: 0.7em; font-size: 0.8em; font-weight: 200; color: var(--ink-soft); }
 
-.post-end {
-  margin-top: 5em;
-  padding-top: 2em;
-  border-top: 1px solid var(--ink-faint);
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9em;
-  font-weight: 200;
-  color: var(--ink-soft);
-}
-
-.post-end span { transition: color 0.3s; }
-.post-end span:hover { color: var(--ink); }
-
 /* ---------------------------------------------------------------------------
    About
 --------------------------------------------------------------------------- */
