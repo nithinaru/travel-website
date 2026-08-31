@@ -25,7 +25,22 @@
   var lerp = function (a, b, t) { return a + (b - a) * t; };
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var isNarrow = function () { return window.innerWidth <= 700; };
+
+  // The stylesheet's three breakpoints, asked of the browser rather than
+  // worked out again here, so the script and the CSS can never disagree about
+  // which one is in force. A phone held sideways matches the tablet width as
+  // well, so phone is asked first and wins.
+  var mqPhone = window.matchMedia(
+    '(max-width: 600px) and (orientation: portrait),' +
+    '(max-height: 500px) and (orientation: landscape)');
+  var mqTablet = window.matchMedia('(min-width: 601px) and (max-width: 1024px)');
+  var mqPortrait = window.matchMedia('(orientation: portrait)');
+
+  function layoutMode() {
+    if (mqPhone.matches) return 'phone';
+    if (mqTablet.matches) return 'tablet';
+    return 'desktop';
+  }
 
   var ZOOM = 'cubic-bezier(.55,.05,.15,1)';
   var SLIDE = 'cubic-bezier(.5,0,.1,1)';
@@ -242,7 +257,10 @@
   /* ------------------------------------------------------------------ layout */
 
   function measure() {
-    var fs = clamp(window.innerHeight / 50, 11, 20);
+    // Height drives the scale, as on the reference site, but a wide-and-short
+    // window (a phone on its side) would otherwise pick a size the width
+    // cannot carry, so the narrower dimension caps it.
+    var fs = clamp(Math.min(window.innerHeight / 50, window.innerWidth / 26), 11, 20);
     document.documentElement.style.setProperty('--fs', fs + 'px');
 
     var band = el.timeline.parentNode.getBoundingClientRect();
@@ -462,11 +480,19 @@
     var aspect = t.trip.width / t.trip.height;
     var availW, availH;
 
-    if (isNarrow()) {
+    var mode = layoutMode();
+
+    // Upright, there is never enough width to put text beside the photo and
+    // leave the photo worth looking at, so the stylesheet stacks them and the
+    // photo takes the full column. An iPad on its side has room and does not.
+    if (mqPortrait.matches && (mode === 'phone' || mode === 'tablet')) {
       availW = state.band.width;
-      availH = state.band.timelineHeight * 0.62;
+      availH = state.band.timelineHeight * (mode === 'tablet' ? 0.8 : 0.72);
     } else {
-      var metaW = t.meta.offsetWidth + 7.5 * state.fs;
+      // side by side. The gap has to match .trip-meta's margin-right at this
+      // breakpoint or the photo is sized against space it does not have.
+      var gapEm = mode === 'tablet' ? 4 : mode === 'phone' ? 3 : 7.5;
+      var metaW = t.meta.offsetWidth + gapEm * state.fs;
       availW = Math.max(state.band.width - metaW, state.band.width * 0.32);
       availH = state.band.timelineHeight;
     }
@@ -638,12 +664,22 @@
 
   /* -------------------------------------------------------------- post level */
 
+  // How much of the screen the article's lead photo may fill. A phone held
+  // upright needs the headline visible under it; sideways there is so little
+  // height that a small share would leave the photo unreadable.
+  function heroShare() {
+    var mode = layoutMode();
+    if (mode === 'phone') return mqPortrait.matches ? 0.52 : 0.72;
+    if (mode === 'tablet') return 0.66;
+    return 0.74;
+  }
+
   function layoutHero(trip) {
     var aspect = trip.width / trip.height;
     el.postHero.style.width = '100%';
     el.postHero.style.height = '0';
     var colW = el.postHero.offsetWidth;
-    var maxH = window.innerHeight * (isNarrow() ? 0.6 : 0.74);
+    var maxH = window.innerHeight * heroShare();
 
     var w = colW;
     var h = w / aspect;
@@ -892,6 +928,14 @@
   var drag = null;
   var dragMoved = false;
 
+  // A finger is blunter than a trackpad: it wanders on the way down and never
+  // holds a straight line, so every threshold is looser on a touch screen.
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  var AXIS_LOCK = coarse ? 10 : 6;      // travel before a gesture picks a direction
+  var MOVED = coarse ? 8 : 4;           // travel before a press stops being a tap
+  var PAGE_BY = coarse ? 70 : 60;       // sideways travel that turns to the next trip
+  var PULL_BY = coarse ? 95 : 80;       // vertical travel that changes level
+
   window.addEventListener('pointerdown', function (e) {
     if (state.level === 'post' || !el.about.hidden) return;
     if (e.target.closest && e.target.closest('a, button')) return;
@@ -911,10 +955,10 @@
     var totalX = e.clientX - drag.startX;
     var totalY = e.clientY - drag.startY;
 
-    if (!drag.axis && (Math.abs(totalX) > 6 || Math.abs(totalY) > 6)) {
+    if (!drag.axis && (Math.abs(totalX) > AXIS_LOCK || Math.abs(totalY) > AXIS_LOCK)) {
       drag.axis = Math.abs(totalX) > Math.abs(totalY) ? 'x' : 'y';
     }
-    if (Math.abs(totalX) > 4 || Math.abs(totalY) > 4) dragMoved = true;
+    if (Math.abs(totalX) > MOVED || Math.abs(totalY) > MOVED) dragMoved = true;
 
     if (drag.axis === 'x' && state.level === 'timeline') {
       scrollBy(-dx);
@@ -930,7 +974,7 @@
     if (!drag) return;
     var totalX = e.clientX - drag.startX;
     var totalY = e.clientY - drag.startY;
-    var quick = Date.now() - drag.time < 500;
+    var quick = Date.now() - drag.time < (coarse ? 700 : 500);
 
     if (state.level === 'timeline') {
       if (drag.axis === 'x') {
@@ -940,9 +984,9 @@
         openFocused();                    // same pull as trip → post, one level up
       }
     } else if (state.level === 'trip') {
-      if (drag.axis === 'x' && Math.abs(totalX) > 60) {
+      if (drag.axis === 'x' && Math.abs(totalX) > PAGE_BY) {
         pageTrip(totalX < 0 ? 1 : -1);
-      } else if (drag.axis === 'y' && quick && Math.abs(totalY) > 80) {
+      } else if (drag.axis === 'y' && quick && Math.abs(totalY) > PULL_BY) {
         if (totalY < 0) openPost(); else closeTrip();
       }
     }
@@ -1028,6 +1072,15 @@
     updateFocus();
   }
 
+  // Safari resizes the viewport on every scroll as its toolbar collapses.
+  // Relayout measures the whole line, so it waits for the run to settle.
+  var relayoutTimer = null;
+
+  function queueRelayout() {
+    window.clearTimeout(relayoutTimer);
+    relayoutTimer = window.setTimeout(relayout, 120);
+  }
+
   function boot() {
     buildChrome();
     buildTimeline();
@@ -1038,8 +1091,15 @@
     updateFocus();
     setYear(TRIPS.length ? TRIPS[0].year : 2025, true);
     window.requestAnimationFrame(frame);
-    window.addEventListener('resize', relayout);
-    window.addEventListener('orientationchange', function () { window.setTimeout(relayout, 200); });
+    window.addEventListener('resize', queueRelayout);
+    // iOS reports stale dimensions right after the event, so re-measure late too
+    window.addEventListener('orientationchange', function () {
+      queueRelayout();
+      window.setTimeout(relayout, 250);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', queueRelayout);
+    }
     window.setTimeout(intro, 80);
   }
 

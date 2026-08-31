@@ -31,6 +31,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -55,7 +57,8 @@ body.is-loading .timeline { opacity: 0; }
   position: fixed;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
 }
 
@@ -68,6 +71,7 @@ body.is-loading .timeline { opacity: 0; }
   display: grid;
   grid-template-columns: [full-start] 1fr [content-start] min(1000px, 100% - 300px) [content-end] 1fr [full-end];
   grid-template-rows: 1fr min(740px, 100vh - 200px) 1fr;
+  grid-template-rows: 1fr min(740px, 100dvh - 200px) 1fr;
   align-items: center;
   width: 100vw;
   height: 100vh;
@@ -205,6 +209,16 @@ body.level-post .header-nav {
   opacity: 0;
   transform: translateY(-8px);
   pointer-events: none;
+}
+
+/* In the article the chevron can sit over the lead photo, which may be dark
+   or busy. A soft disc keeps it readable without showing up against paper. */
+body.level-post .back {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--ink);
 }
 
 body.level-trip .back,
@@ -503,39 +517,268 @@ body.level-post .back {
 .about-close { margin-top: 2em; font-size: 0.8em; color: var(--ink-soft); }
 
 /* ---------------------------------------------------------------------------
-   Narrow screens
+   Safe areas
+   env() is 0 on everything without a notch or a home indicator, so these
+   rules are inert outside of iOS. Padding the grid rather than each layer
+   keeps the header, the timeline and a trip on the same left edge, and the
+   band JS measures shrinks with it on its own.
 --------------------------------------------------------------------------- */
 
-@media only screen and (max-width: 700px) {
+.grid {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.post-inner {
+  padding-top: calc(6vh + env(safe-area-inset-top, 0px));
+  padding-right: calc(2em + env(safe-area-inset-right, 0px));
+  padding-bottom: calc(10em + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(2em + env(safe-area-inset-left, 0px));
+}
+
+.about-inner {
+  padding-top: calc(2em + env(safe-area-inset-top, 0px));
+  padding-right: calc(2em + env(safe-area-inset-right, 0px));
+  padding-bottom: calc(2em + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(2em + env(safe-area-inset-left, 0px));
+}
+
+/* ---------------------------------------------------------------------------
+   Touch
+   A finger has no hover and no pixel precision: the small controls get a
+   44px hit area from an invisible expander, so nothing changes size on
+   screen, and every hover-only affordance is turned off.
+--------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .header-nav a:hover { color: var(--ink-soft); }
+  .back:hover { color: var(--ink-soft); }
+  .trip-read:hover .trip-read-circle { transform: none; }
+}
+
+@media (pointer: coarse) {
+  .trip-read,
+  .about-close { position: relative; }
+
+  .back::after,
+  .trip-read::after,
+  .about-close::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Tablet — 601px to 1024px
+   The 300px desktop gutter leaves an iPad in portrait about 468px to work
+   with, which is not enough for a photo beside its text. The gutter drops to
+   96px and the side-by-side arrangement stays: there is room for it.
+   Above 1024px (iPad landscape, small laptops) nothing here applies and the
+   desktop rules stand.
+--------------------------------------------------------------------------- */
+
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+  .grid {
+    grid-template-columns:
+      [full-start] 1fr [content-start] min(1000px, 100% - 96px) [content-end] 1fr [full-end];
+  }
+
+  .trip-inner { width: min(1000px, 100% - 96px); }
+
+  /* the nav sits on the column edge; there is no room to inset it further */
+  .header-nav { margin-right: 0; }
+
+  /* NOTE: JS reserves 7.5em beside the meta block. Narrowing this only ever
+     leaves the photo smaller than the space it has, never larger. */
+  .trip-meta { margin-right: 4em; }
+
+  .post-inner { max-width: 40em; }
+}
+
+/* Upright there is no room for text beside the photo, so it goes underneath,
+   the same arrangement phones use. */
+@media only screen and (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
+  .trip-inner {
+    flex-direction: column-reverse;
+    justify-content: center;
+    /* unlike a phone the photo does not fill the column, so it is centred
+       rather than left with dead space beside it */
+    align-items: center;
+  }
+
+  .trip-meta {
+    margin-right: 0;
+    margin-top: 2.6em;
+    min-width: 100%;
+  }
+}
+
+@media only screen and (min-width: 601px) and (max-width: 1024px) and (pointer: coarse) {
+  /* a stacked nav cannot use overlapping hit boxes, so the line box grows */
+  .header-nav a { line-height: 2.2em; }
+}
+
+/* ---------------------------------------------------------------------------
+   Phone — both orientations
+   Comes after the tablet section on purpose: a phone held sideways is 601px
+   to 1024px wide as well, and has to win.
+--------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 600px) and (orientation: portrait),
+       only screen and (max-height: 500px) and (orientation: landscape) {
   .grid {
     grid-template-columns: [full-start] 24px [content-start] 1fr [content-end] 24px [full-end];
+    grid-template-rows: 1fr min(740px, 100vh - 120px) 1fr;
     grid-template-rows: 1fr min(740px, 100dvh - 120px) 1fr;
   }
 
-  .header { flex-direction: column; height: auto; align-items: flex-start; }
-  .header-title-block { font-size: 16px; margin-bottom: 0.9em; }
+  /* Every hairline goes to 400. A 200 weight on a phone screen renders as a
+     broken grey line rather than as type. */
+  .header-nav,
+  .tl-item::after,
+  .trip-sub,
+  .trip-people-label,
+  .trip-people,
+  .post-kicker,
+  .post-standfirst,
+  .post-body,
+  .post-body blockquote,
+  .post-body figcaption,
+  .about-inner { font-weight: 400; }
+
+  .header {
+    flex-direction: column;
+    height: auto;
+    align-items: flex-start;
+    transform-origin: top left;
+  }
+
+  /* the title block sizes off --fs here, so the name cannot outgrow a narrow
+     screen the way a fixed pixel size would */
+  .header-title-block { font-size: 0.85em; margin-bottom: 1em; }
+  .header-name,
+  .header-year { font-size: 2.805em; }
+
   .header-nav {
     flex-direction: row;
     gap: 1.2em;
+    margin-top: 0;
     margin-right: 0;
+    font-size: 1.4em;
     transform-origin: top left;
-    font-size: 15px;
   }
 
-  .back { top: -0.2em; }
+  /* padding out, margin back in: a 44px-tall target on a nav that keeps its
+     own height. The row means the boxes sit beside each other, not on top. */
+  .header-nav a { line-height: 1.4em; padding: 0.5em 0; margin: -0.5em 0; }
 
-  .trip-inner {
-    width: calc(100% - 48px);
-    flex-direction: column-reverse;
-    justify-content: center;
-    align-items: flex-start;
+  /* a chevron the size of a thumb, with the glyph left where it was */
+  .back {
+    top: -1.7em;
+    left: -2em;
+    width: 6em;
+    height: 6em;
+    padding: 2em;
   }
-  .trip-meta { margin-right: 0; margin-top: 2.2em; }
-  .trip-col { margin-right: 1.8em; }
 
-  .post-inner { padding: 5vh 1.5em 8em; }
+  .trip-inner { width: calc(100% - 48px); }
+  .trip-read { width: 2.8em; height: 2.8em; margin-top: 1.2em; }
+  /* a 2.5px hairline all but vanishes on a small circle */
+  .trip-read circle { stroke-width: 3px; }
+
+  .post-inner {
+    /* clears the chevron, which sits over the article at this width */
+    padding-top: calc(8.5em + env(safe-area-inset-top, 0px));
+    padding-right: calc(1.5em + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(8em + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(1.5em + env(safe-area-inset-left, 0px));
+  }
   .post-title { font-size: 2.4em; }
   .post-standfirst { font-size: 1.25em; }
+  .post-body blockquote { font-size: 1.15em; }
+}
+
+/* ---------------------------------------------------------------------------
+   Phone, portrait
+   A trip stacks: the photo on top, the writing under it, and the type comes
+   up a size because there is no longer a photo beside it competing for the
+   width.
+--------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 600px) and (orientation: portrait) {
+  .trip-inner {
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* a floor under the window: whatever height JS hands the photo, the text
+     below it keeps its half of the band */
+  .trip-shot { max-height: 60%; }
+
+  .trip-meta {
+    margin-top: 4em;
+    margin-right: 0;
+    min-width: 100%;
+  }
+
+  .trip-col { margin-right: 1.8em; }
+
+  .trip-title,
+  .trip-sub,
+  .trip-people-label,
+  .trip-people { font-size: 1.28em; }
+
+  /* at this size a blurb no longer fits on one line, and a clipped line is
+     worse than a wrapped one */
+  .trip-sub span { white-space: normal; }
+}
+
+/* ---------------------------------------------------------------------------
+   Phone, landscape
+   Only a few hundred pixels of height: the header goes back onto one line
+   and the trip keeps the photo beside its text, which is the arrangement
+   that fits a short wide band.
+--------------------------------------------------------------------------- */
+
+@media only screen and (max-height: 500px) and (orientation: landscape) {
+  .grid {
+    grid-template-rows: 1fr min(740px, 100vh - 72px) 1fr;
+    grid-template-rows: 1fr min(740px, 100dvh - 72px) 1fr;
+  }
+
+  .header { flex-direction: row; align-items: flex-start; }
+  .header-title-block { font-size: 1.5em; margin-bottom: 0; }
+  .header-name,
+  .header-year { font-size: 1.6em; }
+
+  .header-nav {
+    align-self: flex-start;
+    gap: 1.1em;
+    font-size: 1.15em;
+  }
+
+  .back {
+    top: -1.4em;
+    left: -1.7em;
+    width: 5em;
+    height: 5em;
+    padding: 1.75em;
+  }
+
+  /* NOTE: JS reserves 7.5em here as well — see the tablet note above. */
+  .trip-meta { margin-right: 3em; }
+  .trip-col { margin-right: 1.6em; }
+  .trip-read { margin-top: 0.9em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
