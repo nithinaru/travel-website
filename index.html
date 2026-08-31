@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Travels</title>
+<meta name="description" content="Every trip, most recent first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-loading level-timeline">
+
+  <!-- fixed header: name + year on the left, nav on the right, back chevron -->
+  <div class="layer layer--header">
+    <main class="grid">
+      <div class="grid-content">
+        <div class="chrome" id="chrome">
+          <header class="header">
+            <div class="header-title-block" id="headerTitle">
+              <div class="header-name" id="siteName"></div>
+              <div class="header-year" id="headerYear"></div>
+            </div>
+            <nav class="header-nav" id="headerNav"></nav>
+          </header>
+          <button class="back" id="backButton" data-clickable aria-label="Back">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="15.5,3.5 6.5,12 15.5,20.5" fill="none"
+                        stroke="currentColor" stroke-width="1.4"
+                        stroke-linecap="round" stroke-linejoin="round"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- level 0: the horizontal timeline of trips -->
+  <div class="layer layer--timeline" id="timelineLayer">
+    <main class="grid">
+      <div class="grid-content grid-content--bottom">
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- level 1: one trip, expanded. A single track that slides sideways. -->
+  <div class="layer layer--trip" id="tripLayer" hidden>
+    <main class="grid">
+      <div class="grid-content grid-content--middle">
+        <div class="trip-window">
+          <div class="trip-rail" id="tripRail"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- level 2: the blog post, with the photo carried up to the top of it -->
+  <article class="post" id="post" hidden>
+    <div class="post-scroll" id="postScroll">
+      <div class="post-inner">
+        <div class="post-hero" id="postHero"></div>
+        <div class="post-text" id="postText"></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- about -->
+  <div class="about" id="about" hidden>
+    <div class="about-inner" id="aboutInner"></div>
+  </div>
+
+  <div class="hint" id="hint" aria-hidden="true"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

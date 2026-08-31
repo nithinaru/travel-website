@@ -1,0 +1,560 @@
+/* ---------------------------------------------------------------------------
+   Base
+   Almost everything is sized in em off a root that tracks the viewport height,
+   so the whole composition scales as one piece.
+--------------------------------------------------------------------------- */
+
+:root {
+  --fs: 20px;                 /* set from JS: viewport height / 50, clamped */
+  --header-h: 114px;          /* set from JS: measured header height */
+  --ink: #000;
+  --ink-soft: rgba(0, 0, 0, 0.4);
+  --ink-faint: rgba(0, 0, 0, 0.16);
+  --paper: #fff;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-zoom: cubic-bezier(0.55, 0.05, 0.15, 1);   /* the open / close zoom */
+}
+
+html, body {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+h1, h2, h3, h4 { margin: 0; padding: 0; font-weight: 400; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { display: none; }
+
+[data-clickable] { cursor: pointer; }
+
+body.is-loading .chrome,
+body.is-loading .timeline { opacity: 0; }
+
+/* ---------------------------------------------------------------------------
+   The shared grid every layer sits in.
+--------------------------------------------------------------------------- */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.layer--timeline { z-index: 10; }
+.layer--trip { z-index: 20; }
+.layer--header { z-index: 30; }
+.layer--timeline.is-inert, .layer--timeline.is-inert .tl-item { pointer-events: none; }
+
+.grid {
+  display: grid;
+  grid-template-columns: [full-start] 1fr [content-start] min(1000px, 100% - 300px) [content-end] 1fr [full-end];
+  grid-template-rows: 1fr min(740px, 100vh - 200px) 1fr;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  font-size: var(--fs);
+  pointer-events: none;
+}
+
+.grid > * { grid-column: content; grid-row: 2; }
+
+.grid-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-content--bottom { justify-content: flex-end; }
+.grid-content--middle { justify-content: center; padding-top: var(--header-h); }
+
+/* ---------------------------------------------------------------------------
+   Header. Opening a trip clears the name, the year and the nav, and brings in
+   the back chevron in their place.
+--------------------------------------------------------------------------- */
+
+.chrome {
+  position: relative;
+  width: 100%;
+  transition: opacity 0.8s var(--ease-soft);
+}
+
+.header {
+  display: flex;
+  height: var(--header-h);
+  justify-content: space-between;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.header-title-block {
+  font-size: 20px;
+  transform-origin: top left;
+  flex: 1;
+}
+
+.header-name,
+.header-year {
+  font-size: 2em;
+  line-height: 1.2em;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.header-year { position: relative; display: inline-block; }
+.header-year .year-out,
+.header-year .year-in { display: block; }
+.header-year .year-out { position: absolute; top: 0; left: 0; }
+
+@keyframes yearIn  { from { opacity: 0; transform: translateY(0.42em); } to { opacity: 1; transform: none; } }
+@keyframes yearOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-0.42em); } }
+.header-year .year-in  { animation: yearIn 0.42s var(--ease) both; }
+.header-year .year-out { animation: yearOut 0.42s var(--ease) both; }
+
+.header-nav {
+  display: flex;
+  flex-direction: column;
+  margin-right: 4em;
+  align-self: flex-start;
+  margin-top: 2px;
+  font-size: 20px;
+  font-weight: 200;
+  transform-origin: top right;
+  pointer-events: auto;
+}
+
+.header-nav a {
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1.35em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition: color 0.35s var(--ease-soft);
+}
+
+.header-nav a:hover { color: var(--ink); }
+
+/* back chevron — no stem, sitting where the name was */
+.back {
+  position: absolute;
+  top: 0;
+  left: -0.35em;
+  width: 2.2em;
+  height: 2.2em;
+  padding: 0.35em;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-soft), color 0.3s var(--ease-soft),
+              transform 0.4s var(--ease);
+  transform: translateX(6px);
+}
+
+.back svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.back:hover { color: var(--ink); }
+
+/* who is on screen decides what the header shows */
+.header-title-block,
+.header-nav {
+  transition: opacity 0.45s var(--ease-soft), transform 0.45s var(--ease-soft);
+}
+
+body.level-trip .header-title-block,
+body.level-post .header-title-block,
+body.level-trip .header-nav,
+body.level-post .header-nav {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+body.level-trip .back,
+body.level-post .back {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Level 0 — timeline. Trips stand on a common baseline, sized by how recent
+   they are and spaced by how much time passed in between.
+--------------------------------------------------------------------------- */
+
+.layer--timeline { pointer-events: auto; touch-action: pan-y; }
+
+.timeline {
+  position: relative;
+  height: 100%;
+  width: auto;
+  flex-shrink: 0;
+  will-change: transform;
+  transition: opacity 0.8s var(--ease-soft);
+}
+
+.tl-item {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: auto;
+  transition: opacity 0.42s var(--ease-soft);
+}
+
+/* while a trip is open the rest of the line clears out of the way */
+.timeline.is-out .tl-item { opacity: 0; }
+
+.tl-shot {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+}
+
+.tl-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  bottom: -2.8em;
+  transform: translateX(-50%) translateY(0.4em);
+  font-size: 0.8em;
+  font-weight: 200;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-soft), transform 0.35s var(--ease-soft);
+  pointer-events: none;
+}
+
+.tl-item.is-focused::after { opacity: 1; transform: translateX(-50%); }
+.timeline.is-out .tl-item.is-focused::after { opacity: 0; }
+
+.timeline-rule {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink-faint);
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-soft);
+  pointer-events: none;
+}
+
+.timeline-rule.is-visible { opacity: 1; }
+body.level-trip .timeline-rule,
+body.level-post .timeline-rule { opacity: 0; }
+
+/* ---------------------------------------------------------------------------
+   Level 1 — one trip. All trips live side by side on one track that slides.
+--------------------------------------------------------------------------- */
+
+.layer--trip { pointer-events: auto; touch-action: none; }
+.layer--trip[hidden] { display: none; }
+
+/* the window stays put and clips; only the rail inside it moves */
+.trip-window {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.trip-rail {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.trip {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  pointer-events: none;
+}
+
+.trip.is-active { pointer-events: auto; }
+
+.trip-meta {
+  display: flex;
+  align-items: flex-start;
+  margin-right: 7.5em;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.trip-col { margin-right: 2.2em; }
+.trip-col:last-child { margin-right: 0; }
+
+.trip-title { font-size: 1em; font-weight: 600; white-space: nowrap; }
+
+.trip-sub {
+  font-size: 1em;
+  font-weight: 200;
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-sub span { display: inline-block; white-space: nowrap; }
+.trip-sub .trip-date { margin-top: 0.5em; }
+
+.trip-people-label { font-size: 1em; font-weight: 200; color: var(--ink-soft); }
+
+.trip-people {
+  display: flex;
+  flex-direction: column;
+  font-size: 1em;
+  font-weight: 200;
+  color: var(--ink-soft);
+}
+
+.trip-read {
+  width: 2.2em;
+  height: 2.2em;
+  margin-top: 2em;
+  border: none;
+  padding: 0;
+  background: none;
+  overflow: visible;
+  display: block;
+}
+
+.trip-read svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.trip-read circle { fill: transparent; stroke: var(--ink); stroke-width: 2.5px; }
+.trip-read polygon { fill: var(--ink); }
+.trip-read-circle { transition: transform 0.5s var(--ease); transform-origin: 34px 34px; }
+.trip-read:hover .trip-read-circle { transform: scale(1.12); }
+
+.trip-shot {
+  flex-shrink: 0;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* the element that carries a photo between two levels */
+.flyer {
+  position: fixed;
+  z-index: 60;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------------------
+   Level 2 — the post. The photo lands at the top of it.
+--------------------------------------------------------------------------- */
+
+.post {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.post[hidden] { display: none; }
+
+.post-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.post-inner {
+  max-width: 44em;
+  margin: 0 auto;
+  padding: 6vh 2em 10em;
+  font-size: var(--fs);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.post-hero {
+  margin: 0 auto 3.4em;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.post-kicker {
+  font-size: 0.9em;
+  font-weight: 200;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1.4em;
+}
+
+.post-title {
+  font-size: 3.2em;
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25em;
+}
+
+.post-standfirst {
+  font-size: 1.5em;
+  line-height: 1.45;
+  font-weight: 200;
+  color: var(--ink-soft);
+  margin-bottom: 2.2em;
+}
+
+.post-body { font-size: 1.05em; line-height: 1.75; font-weight: 300; }
+.post-body p { margin: 0 0 1.5em; }
+.post-body h3 { font-size: 1.35em; font-weight: 600; line-height: 1.3; margin: 2.4em 0 0.9em; }
+
+.post-body blockquote {
+  margin: 2.4em 0;
+  padding-left: 1.2em;
+  border-left: 1px solid var(--ink-faint);
+  font-size: 1.3em;
+  line-height: 1.45;
+  font-weight: 200;
+}
+
+.post-body figure { margin: 2.6em 0; }
+.post-body figure div { width: 100%; aspect-ratio: 16 / 10; background-size: cover; background-position: center; }
+.post-body figcaption { margin-top: 0.7em; font-size: 0.8em; font-weight: 200; color: var(--ink-soft); }
+
+.post-end {
+  margin-top: 5em;
+  padding-top: 2em;
+  border-top: 1px solid var(--ink-faint);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  font-weight: 200;
+  color: var(--ink-soft);
+}
+
+.post-end span { transition: color 0.3s; }
+.post-end span:hover { color: var(--ink); }
+
+/* ---------------------------------------------------------------------------
+   About
+--------------------------------------------------------------------------- */
+
+.about {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-soft);
+  pointer-events: auto;
+}
+
+.about[hidden] { display: none; }
+.about.is-open { opacity: 1; }
+
+.about-inner {
+  max-width: 34em;
+  padding: 2em;
+  font-size: 1.35em;
+  line-height: 1.6;
+  font-weight: 200;
+}
+
+.about-inner p { margin-bottom: 1.2em; }
+.about-close { margin-top: 2em; font-size: 0.8em; color: var(--ink-soft); }
+
+/* ---------------------------------------------------------------------------
+   Hint
+--------------------------------------------------------------------------- */
+
+.hint {
+  position: fixed;
+  right: 2.4em;
+  bottom: 1.6em;
+  font-size: 0.72em;
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-soft);
+  pointer-events: none;
+  z-index: 65;
+  white-space: nowrap;
+}
+
+.hint.is-visible { opacity: 1; }
+
+/* ---------------------------------------------------------------------------
+   Narrow screens
+--------------------------------------------------------------------------- */
+
+@media only screen and (max-width: 700px) {
+  .grid {
+    grid-template-columns: [full-start] 24px [content-start] 1fr [content-end] 24px [full-end];
+    grid-template-rows: 1fr min(740px, 100dvh - 120px) 1fr;
+  }
+
+  .header { flex-direction: column; height: auto; align-items: flex-start; }
+  .header-title-block { font-size: 16px; margin-bottom: 0.9em; }
+  .header-nav {
+    flex-direction: row;
+    gap: 1.2em;
+    margin-right: 0;
+    transform-origin: top left;
+    font-size: 15px;
+  }
+
+  .back { top: -0.2em; }
+
+  .trip { flex-direction: column-reverse; justify-content: center; align-items: flex-start; }
+  .trip-meta { margin-right: 0; margin-top: 2.2em; }
+  .trip-col { margin-right: 1.8em; }
+
+  .post-inner { padding: 5vh 1.5em 8em; }
+  .post-title { font-size: 2.4em; }
+  .post-standfirst { font-size: 1.25em; }
+
+  .hint { left: 24px; right: 24px; text-align: right; white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
