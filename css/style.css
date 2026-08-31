@@ -279,7 +279,10 @@ body.level-post .timeline-rule { opacity: 0; }
 .layer--trip { pointer-events: auto; touch-action: none; }
 .layer--trip[hidden] { display: none; }
 
-/* the window stays put and clips; only the rail inside it moves */
+/* The window runs the full width of the screen so a trip slides in from
+   one edge and out of the other. Only the rail inside it moves. */
+.layer--trip .grid > .grid-content { grid-column: full; }
+
 .trip-window {
   width: 100%;
   flex: 1 1 auto;
@@ -296,11 +299,18 @@ body.level-post .timeline-rule { opacity: 0; }
 
 .trip {
   flex: 0 0 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* the trip itself still lines up with the content column */
+.trip-inner {
+  width: min(1000px, 100% - 300px);
+  height: 100%;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 100%;
-  pointer-events: none;
 }
 
 .trip.is-active { pointer-events: auto; }
@@ -544,7 +554,12 @@ body.level-post .timeline-rule { opacity: 0; }
 
   .back { top: -0.2em; }
 
-  .trip { flex-direction: column-reverse; justify-content: center; align-items: flex-start; }
+  .trip-inner {
+    width: calc(100% - 48px);
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-start;
+  }
   .trip-meta { margin-right: 0; margin-top: 2.2em; }
   .trip-col { margin-right: 1.8em; }
 

@@ -392,8 +392,11 @@
       shot.setAttribute('data-clickable', '');
       shot.addEventListener('click', function () { if (!dragMoved) openPost(); });
 
-      node.appendChild(meta);
-      node.appendChild(shot);
+      var inner = document.createElement('div');
+      inner.className = 'trip-inner';
+      inner.appendChild(meta);
+      inner.appendChild(shot);
+      node.appendChild(inner);
       el.tripRail.appendChild(node);
       state.trips.push({ node: node, meta: meta, shot: shot, trip: trip });
     });
