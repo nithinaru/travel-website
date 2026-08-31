@@ -81,8 +81,6 @@ def build(name, w, h, kind, pal):
         '<stop offset="0%%" stop-color="%s" stop-opacity="1"/>'
         '<stop offset="60%%" stop-color="%s" stop-opacity="0.55"/>'
         '<stop offset="100%%" stop-color="%s" stop-opacity="0"/></radialGradient>' % (sun2, sun, sun),
-        '<filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>'
-        '<feColorMatrix type="saturate" values="0"/></filter>',
         '</defs>',
         '<rect width="%d" height="%d" fill="url(#sky)"/>' % (w, h),
     ]
@@ -104,7 +102,6 @@ def build(name, w, h, kind, pal):
     if kind == "coast":
         parts.append('<rect x="0" y="%.0f" width="%d" height="%.0f" fill="%s" opacity="0.35"/>'
                      % (horizon, w, h - horizon, layers[0]))
-    parts.append('<rect width="%d" height="%d" filter="url(#grain)" opacity="0.045"/>' % (w, h))
     parts.append('</svg>')
     return "".join(parts)
 

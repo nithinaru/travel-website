@@ -114,15 +114,28 @@
     var sx = to.width ? from.width / to.width : 1;
     var sy = to.height ? from.height / to.height : 1;
 
-    var anim = node.animate([
-      { transformOrigin: 'top left', transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')' },
-      { transformOrigin: 'top left', transform: 'none' }
-    ], { duration: reduceMotion ? 1 : duration, easing: ZOOM, fill: 'both' });
+    var start = { transformOrigin: 'top left', transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')' };
+    var end = { transformOrigin: 'top left', transform: 'none' };
 
-    after(anim, duration, function () {
-      if (node.parentNode) node.parentNode.removeChild(node);
-      if (onLand) onLand();
-    });
+    // hold it at the source for one frame so it is painted before it moves,
+    // otherwise the first frames of the flight can drop
+    node.style.transformOrigin = 'top left';
+    node.style.transform = start.transform;
+
+    var launch = function () {
+      var anim = node.animate([start, end], {
+        duration: reduceMotion ? 1 : duration, easing: ZOOM, fill: 'both'
+      });
+      after(anim, duration, function () {
+        if (node.parentNode) node.parentNode.removeChild(node);
+        if (onLand) onLand();
+      });
+    };
+
+    // whichever comes first — a starved frame loop must not strand the flight
+    var begin = once(launch);
+    if (reduceMotion) begin();
+    else { window.requestAnimationFrame(begin); window.setTimeout(begin, 60); }
   }
 
   /* ------------------------------------------------------------------ chrome */
@@ -583,8 +596,6 @@
 
   function renderPost(i) {
     var trip = TRIPS[i];
-    el.postHero.style.backgroundImage = 'url("' + trip.image + '")';
-
     el.postText.innerHTML =
       '<div class="post-kicker"></div>' +
       '<h1 class="post-title"></h1>' +
@@ -640,8 +651,10 @@
     state.busy = true;
 
     var t = state.trips[state.index];
-    renderPost(state.index);
+    var index = state.index;
 
+    el.postText.innerHTML = '';
+    el.postHero.style.backgroundImage = 'url("' + t.trip.image + '")';
     el.post.hidden = false;
     el.post.style.opacity = '0';
     layoutHero(t.trip);
@@ -658,16 +671,21 @@
     showHint('');
 
     animateTo(el.post, { opacity: 0 }, { opacity: '1' }, { duration: 420, easing: 'ease' });
-    animateTo(el.postText,
-      { opacity: 0, transform: 'translateY(30px)' },
-      { opacity: '1', transform: 'none' },
-      { duration: 620, delay: 300, easing: SOFT });
 
     // the photo travels up to the top of the page and grows into the hero
     fly(t.trip.image, from, to, 820, 'center', function () {
       el.postHero.style.visibility = '';
       state.busy = false;
     });
+
+    window.setTimeout(function () {
+      if (state.level !== 'post') return;
+      renderPost(index);
+      animateTo(el.postText,
+        { opacity: 0, transform: 'translateY(30px)' },
+        { opacity: '1', transform: 'none' },
+        { duration: 620, delay: 160, easing: SOFT });
+    }, 80);
   }
 
   function closePost() {
@@ -720,6 +738,7 @@
 
     var fade = animateTo(el.postText, { opacity: 1 }, { opacity: '0' }, { duration: 200, easing: 'ease' });
     after(fade, 200, function () {
+      el.postHero.style.backgroundImage = 'url("' + TRIPS[i].image + '")';
       renderPost(i);
       layoutHero(TRIPS[i]);
       el.postScroll.scrollTop = 0;
