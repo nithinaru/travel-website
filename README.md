@@ -50,8 +50,9 @@ Everything lives in `js/data.js`. Add an entry to `window.TRIPS`, newest first:
 ```
 
 `width` and `height` must match the file — the zoom between levels only lines up
-if the aspect ratio is right. `scale` is what makes the line recede into the
-past: recent trips near 1, older ones down towards 0.2.
+if the aspect ratio is right. `scale` is how tall the photo stands on the line;
+vary it to give the line some rhythm. It has nothing to do with how old the trip
+is.
 
 Your name and the nav links are at the top of the same file.
 

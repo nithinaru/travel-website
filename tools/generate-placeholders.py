@@ -13,14 +13,14 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")
 # name, width, height, kind, palette (sky top, sky bottom, sun, layer colours...)
 SCENES = [
     ("tokyo",       900, 1500, "city",     ["#1b2a4a", "#7d5a8c", "#f0a5a0", "#ffd9b0", ["#3d3357", "#2a2340", "#171426"]]),
-    ("patagonia",  2200, 1500, "mountain", ["#bcd6e8", "#f3e2d0", "#fff3d6", "#ffffff", ["#8fa8be", "#5f7a8e", "#3b4d61"]]),
+    ("patagonia",  3000, 1200, "mountain", ["#bcd6e8", "#f3e2d0", "#fff3d6", "#ffffff", ["#8fa8be", "#5f7a8e", "#3b4d61"]]),
     ("lisbon",     1500, 1500, "city",     ["#f6d9b8", "#f0a878", "#fff0c9", "#ffe2b0", ["#c9835f", "#a2604a", "#6f3f36"]]),
     ("marrakech",  2000, 1300, "desert",   ["#f6c99a", "#e98f5f", "#fff1cf", "#ffd9a0", ["#d98a58", "#b96a43", "#8a4a30"]]),
-    ("iceland",    2200, 1400, "mountain", ["#0d1b33", "#1f3f5c", "#8de8c8", "#c9f7e6", ["#1b3350", "#12243a", "#0a1626"]]),
+    ("iceland",    1100, 1500, "mountain", ["#0d1b33", "#1f3f5c", "#8de8c8", "#c9f7e6", ["#1b3350", "#12243a", "#0a1626"]]),
     ("amalfi",     1000, 1500, "coast",    ["#7ec8e8", "#dff1f7", "#fff6d8", "#ffffff", ["#3f8fb5", "#2c6f92", "#1d4f6b"]]),
-    ("capetown",   2000, 1350, "mountain", ["#f2b8a0", "#f7dfc9", "#fff2d2", "#ffe0bb", ["#9a6f78", "#6f5261", "#463847"]]),
+    ("capetown",   2400, 1000, "mountain", ["#f2b8a0", "#f7dfc9", "#fff2d2", "#ffe0bb", ["#9a6f78", "#6f5261", "#463847"]]),
     ("bali",       1500, 1500, "forest",   ["#dff0d8", "#a8cf9a", "#fff5cf", "#ffffff", ["#6f9c62", "#4e7a49", "#2f5232"]]),
-    ("peru",       1900, 1500, "mountain", ["#cfe3f0", "#f0e6d8", "#fff6de", "#ffffff", ["#8b9aa8", "#6a7684", "#49535f"]]),
+    ("peru",       1600, 1500, "mountain", ["#cfe3f0", "#f0e6d8", "#fff6de", "#ffffff", ["#8b9aa8", "#6a7684", "#49535f"]]),
     ("newzealand", 2100, 1300, "coast",    ["#8fd0e0", "#e6f4f2", "#fffae0", "#ffffff", ["#4f9c93", "#377a75", "#22534f"]]),
 ]
 
