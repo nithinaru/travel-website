@@ -318,11 +318,9 @@
       it.node.style.width = w + 'px';
       it.node.style.height = h + 'px';
 
-      var gapEm = 1.375;
-      if (state.items[i + 1]) {
-        gapEm = 1.375 + Math.min(Math.abs(it.trip.year - TRIPS[i + 1].year), 6) * 0.5;
-      }
-      x += w + gapEm * fs;
+      // One gap everywhere. It used to widen with the years between trips,
+      // which read as arbitrary holes in the line rather than as time passing.
+      x += w + 1.75 * fs;
     });
 
     // scroll far enough that the oldest trip can still reach the focus line

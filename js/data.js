@@ -54,7 +54,7 @@ window.TRIPS = [
     "image": "images/chile-april2026.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.62
+    "scale": 0.78
   },
   {
     "id": "oregon-february2026",
@@ -65,7 +65,7 @@ window.TRIPS = [
     "image": "images/oregon-february2026.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.85
+    "scale": 0.9
   },
   {
     "id": "brazil-august2025",
@@ -76,7 +76,7 @@ window.TRIPS = [
     "image": "images/brazil-august2025.jpg",
     "width": 1135,
     "height": 2000,
-    "scale": 0.7
+    "scale": 0.72
   },
   {
     "id": "colombia-august2025",
@@ -87,7 +87,7 @@ window.TRIPS = [
     "image": "images/colombia-august2025.jpg",
     "width": 1199,
     "height": 2000,
-    "scale": 0.95
+    "scale": 0.96
   },
   {
     "id": "nicaragua-march2025",
@@ -98,7 +98,7 @@ window.TRIPS = [
     "image": "images/nicaragua-march2025.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.58
+    "scale": 0.75
   },
   {
     "id": "honduras-january2025",
@@ -120,7 +120,7 @@ window.TRIPS = [
     "image": "images/hawaii-october2024.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.66
+    "scale": 0.7
   },
   {
     "id": "england-june2024",
@@ -131,7 +131,7 @@ window.TRIPS = [
     "image": "images/england-june2024.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.78
+    "scale": 0.84
   },
   {
     "id": "scotland",
@@ -144,7 +144,7 @@ window.TRIPS = [
     "image": "images/scotland-1.jpg",
     "width": 2000,
     "height": 2000,
-    "scale": 0.92,
+    "scale": 0.94,
     "with": [
       "Family"
     ],
@@ -220,7 +220,7 @@ window.TRIPS = [
     "image": "images/arizona-april2024.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.72
+    "scale": 0.76
   },
   {
     "id": "singapore-december2023",
@@ -231,7 +231,7 @@ window.TRIPS = [
     "image": "images/singapore-december2023.jpg",
     "width": 2000,
     "height": 2000,
-    "scale": 0.82
+    "scale": 0.86
   },
   {
     "id": "czechia",
@@ -317,7 +317,7 @@ window.TRIPS = [
     "image": "images/hungary-1.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.62,
+    "scale": 0.78,
     "with": [
       "Family"
     ],
@@ -378,7 +378,7 @@ window.TRIPS = [
     "image": "images/slovakia-1.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.85,
+    "scale": 0.9,
     "with": [
       "Family"
     ],
@@ -439,7 +439,7 @@ window.TRIPS = [
     "image": "images/elsalvador-1.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.7,
+    "scale": 0.72,
     "with": [
       "Family"
     ],
@@ -540,7 +540,7 @@ window.TRIPS = [
     "image": "images/tokyo-1.jpg",
     "width": 1679,
     "height": 2000,
-    "scale": 0.95,
+    "scale": 0.96,
     "with": [
       "Family"
     ],
@@ -615,7 +615,7 @@ window.TRIPS = [
     "image": "images/laos-january2023.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.58
+    "scale": 0.75
   },
   {
     "id": "cambodia",
@@ -706,7 +706,7 @@ window.TRIPS = [
     "image": "images/vietnam-1.jpg",
     "width": 1666,
     "height": 2000,
-    "scale": 0.66,
+    "scale": 0.7,
     "with": [
       "Family"
     ],
@@ -812,7 +812,7 @@ window.TRIPS = [
     "image": "images/canada-1.jpg",
     "width": 2000,
     "height": 1428,
-    "scale": 0.78,
+    "scale": 0.84,
     "with": [
       "Family"
     ],
@@ -916,7 +916,7 @@ window.TRIPS = [
     "image": "images/montana-october2022.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.92
+    "scale": 0.94
   },
   {
     "id": "australia-november2019",
@@ -927,7 +927,7 @@ window.TRIPS = [
     "image": "images/australia-november2019.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.72
+    "scale": 0.76
   },
   {
     "id": "new-zealand-november2019",
@@ -938,7 +938,7 @@ window.TRIPS = [
     "image": "images/new-zealand-november2019.jpg",
     "width": 1500,
     "height": 2000,
-    "scale": 0.82
+    "scale": 0.86
   },
   {
     "id": "fiji-november2018",
@@ -960,7 +960,7 @@ window.TRIPS = [
     "image": "images/belize-september2017.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.62
+    "scale": 0.78
   },
   {
     "id": "guatemala-september2017",
@@ -971,7 +971,7 @@ window.TRIPS = [
     "image": "images/guatemala-september2017.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.85
+    "scale": 0.9
   },
   {
     "id": "italy-april2017",
@@ -982,7 +982,7 @@ window.TRIPS = [
     "image": "images/italy-april2017.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.7
+    "scale": 0.72
   },
   {
     "id": "denmark",
@@ -995,7 +995,7 @@ window.TRIPS = [
     "image": "images/denmark-1.jpg",
     "width": 2000,
     "height": 1335,
-    "scale": 0.95,
+    "scale": 0.96,
     "with": [
       "Family"
     ],
@@ -1065,7 +1065,7 @@ window.TRIPS = [
     "image": "images/norway-june2016.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.58
+    "scale": 0.75
   },
   {
     "id": "sweden",
@@ -1151,7 +1151,7 @@ window.TRIPS = [
     "image": "images/costa-rica-april2015.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.66
+    "scale": 0.7
   },
   {
     "id": "panama-april2015",
@@ -1162,7 +1162,7 @@ window.TRIPS = [
     "image": "images/panama-april2015.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.78
+    "scale": 0.84
   },
   {
     "id": "peru-april2014",
@@ -1173,7 +1173,7 @@ window.TRIPS = [
     "image": "images/peru-april2014.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.92
+    "scale": 0.94
   },
   {
     "id": "alaska-july2013",
@@ -1184,7 +1184,7 @@ window.TRIPS = [
     "image": "images/alaska-july2013.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.72
+    "scale": 0.76
   },
   {
     "id": "newyork",
@@ -1197,7 +1197,7 @@ window.TRIPS = [
     "image": "images/newyork-1.jpg",
     "width": 2000,
     "height": 1500,
-    "scale": 0.82,
+    "scale": 0.86,
     "with": [
       "Family"
     ],
@@ -1270,7 +1270,7 @@ window.TRIPS = [
     "image": "images/wyoming-august2012.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.62
+    "scale": 0.78
   },
   {
     "id": "washington-state-june2012",
@@ -1281,7 +1281,7 @@ window.TRIPS = [
     "image": "images/washington-state-june2012.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.85
+    "scale": 0.9
   },
   {
     "id": "canada-may2012",
@@ -1292,7 +1292,7 @@ window.TRIPS = [
     "image": "images/canada-may2012.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.7
+    "scale": 0.72
   },
   {
     "id": "colorado-may2010",
@@ -1303,6 +1303,6 @@ window.TRIPS = [
     "image": "images/colorado-may2010.jpg",
     "width": 2000,
     "height": 1333,
-    "scale": 0.95
+    "scale": 0.96
   }
 ];
