@@ -452,6 +452,14 @@
       { duration: 240, easing: 'ease' });
   }
 
+  // Exactly one gap in the line at a time: the trip that is currently open.
+  // Paging sideways moves the gap, so nothing is left hidden behind.
+  function markTimelineGap(i) {
+    state.items.forEach(function (it, k) {
+      it.node.style.visibility = k === i ? 'hidden' : '';
+    });
+  }
+
   function activate(i) {
     state.trips.forEach(function (t, k) { t.node.classList.toggle('is-active', k === i); });
   }
@@ -485,7 +493,7 @@
 
     // the line fades away, and the trip being opened leaves with the flyer
     el.timeline.classList.add('is-out');
-    item.node.style.visibility = 'hidden';
+    markTimelineGap(i);
     t.shot.style.visibility = 'hidden';
 
     fly(t.trip.image, from, to, 760, 'center', function () {
@@ -518,7 +526,7 @@
     t.shot.style.visibility = 'hidden';
 
     fly(t.trip.image, from, to, 720, 'bottom center', function () {
-      item.node.style.visibility = '';
+      markTimelineGap(-1);
       el.tripLayer.hidden = true;
       t.shot.style.visibility = '';
       activate(-1);
@@ -544,6 +552,7 @@
 
     var anim = setTrack(next, true);
     state.index = next;
+    markTimelineGap(next);                     // the gap follows the open trip
     scrollToIndex(next);                       // keep the line in step underneath
     setYear(TRIPS[next].year);
 
@@ -701,6 +710,7 @@
     activate(i);
     layoutTrip(i);
     setTrack(i, false);
+    markTimelineGap(i);
     scrollToIndex(i);
     setYear(TRIPS[i].year);
     state.trips.forEach(function (t, k) { if (k !== i) hideMeta(t, false); });
