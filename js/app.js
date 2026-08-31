@@ -424,6 +424,11 @@
     '<polygon transform="translate(34 34) rotate(180) translate(-8.5 -11)" points="8.5 2.5 19.5 19.5 -2.5 19.5"></polygon>' +
     '</g></svg>';
 
+  // A trip is either a photograph with a story behind it or just a photograph.
+  function hasPost(trip) {
+    return !!(trip.body && trip.body.length);
+  }
+
   function buildTrips() {
     TRIPS.forEach(function (trip, i) {
       var node = document.createElement('div');
@@ -432,37 +437,31 @@
       var meta = document.createElement('div');
       meta.className = 'trip-meta';
       meta.innerHTML =
-        '<div class="trip-col">' +
-          '<h2 class="trip-title"></h2>' +
-          '<h3 class="trip-sub"><span class="trip-place"></span><span class="trip-blurb"></span>' +
-          '<span class="trip-date"></span></h3>' +
-          '<button class="trip-read" data-clickable aria-label="Read the post">' + ARROW + '</button>' +
-        '</div>' +
-        '<div class="trip-col">' +
-          '<h4 class="trip-people-label">With</h4>' +
-          '<div class="trip-people"></div>' +
-        '</div>';
+        '<div class="trip-col trip-col--name"><h2 class="trip-title"></h2></div>' +
+        '<div class="trip-col trip-col--date"><span class="trip-date"></span></div>';
 
       meta.querySelector('.trip-title').textContent = trip.title;
-      meta.querySelector('.trip-place').textContent = trip.place;
-      meta.querySelector('.trip-blurb').textContent = trip.blurb;
       meta.querySelector('.trip-date').textContent = trip.date;
-      var people = meta.querySelector('.trip-people');
-      (trip.with || []).forEach(function (person) {
-        var span = document.createElement('span');
-        span.textContent = person;
-        people.appendChild(span);
-      });
-      meta.querySelector('.trip-read').addEventListener('click', function (e) {
-        e.stopPropagation();
-        openPost();
-      });
+
+      // Only a trip that has something written about it offers a way in.
+      if (hasPost(trip)) {
+        var read = document.createElement('button');
+        read.className = 'trip-read';
+        read.setAttribute('data-clickable', '');
+        read.setAttribute('aria-label', 'Read the story');
+        read.innerHTML = ARROW;
+        read.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openPost();
+        });
+        meta.querySelector('.trip-col--name').appendChild(read);
+      }
 
       var shot = document.createElement('div');
       shot.className = 'trip-shot';
       shot.style.backgroundImage = 'url("' + trip.image + '")';
       shot.setAttribute('data-clickable', '');
-      shot.addEventListener('click', function () { if (!dragMoved) openPost(); });
+      shot.addEventListener('click', function () { if (!dragMoved) openPost(); });   // no-op without an article
 
       var inner = document.createElement('div');
       inner.className = 'trip-inner';
@@ -732,6 +731,7 @@
 
   function openPost() {
     if (state.busy || state.level !== 'trip') return;
+    if (!hasPost(TRIPS[state.index])) return;      // nothing written about this one
     state.busy = true;
 
     var t = state.trips[state.index];

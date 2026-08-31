@@ -341,24 +341,11 @@ body.level-post .back {
 
 .trip-title { font-size: 1em; font-weight: 600; white-space: nowrap; }
 
-.trip-sub {
+/* the month and year sit off to the right of the name */
+.trip-col--date {
   font-size: 1em;
   font-weight: 200;
-  display: flex;
-  flex-direction: column;
-}
-
-.trip-sub span { display: inline-block; white-space: nowrap; }
-.trip-sub .trip-date { margin-top: 0.5em; }
-
-.trip-people-label { font-size: 1em; font-weight: 200; color: var(--ink-soft); }
-
-.trip-people {
-  display: flex;
-  flex-direction: column;
-  font-size: 1em;
-  font-weight: 200;
-  color: var(--ink-soft);
+  white-space: nowrap;
 }
 
 .trip-read {
@@ -645,9 +632,7 @@ body.level-post .back {
      broken grey line rather than as type. */
   .header-nav,
   .tl-item::after,
-  .trip-sub,
-  .trip-people-label,
-  .trip-people,
+  .trip-col--date,
   .post-kicker,
   .post-standfirst,
   .post-body,
@@ -734,13 +719,7 @@ body.level-post .back {
   .trip-col { margin-right: 1.8em; }
 
   .trip-title,
-  .trip-sub,
-  .trip-people-label,
-  .trip-people { font-size: 1.28em; }
-
-  /* at this size a blurb no longer fits on one line, and a clipped line is
-     worse than a wrapped one */
-  .trip-sub span { white-space: normal; }
+  .trip-col--date { font-size: 1.28em; }
 }
 
 /* ---------------------------------------------------------------------------
