@@ -213,7 +213,7 @@ body.level-post .back {
   width: auto;
   flex-shrink: 0;
   will-change: transform;
-  transition: opacity 0.8s var(--ease-soft);
+  transition: opacity 0.42s var(--ease-soft);
 }
 
 .tl-item {
@@ -224,11 +224,12 @@ body.level-post .back {
   justify-content: center;
   flex-shrink: 0;
   pointer-events: auto;
-  transition: opacity 0.42s var(--ease-soft);
 }
 
-/* while a trip is open the rest of the line clears out of the way */
-.timeline.is-out .tl-item { opacity: 0; }
+/* While a trip is open the whole line clears out of the way as one layer.
+   Fading the items one by one could leave a sliver of a half-off-screen
+   photo stranded against the edge of the screen. */
+.timeline.is-out { opacity: 0; }
 
 .tl-shot {
   width: 100%;
@@ -255,7 +256,6 @@ body.level-post .back {
 }
 
 .tl-item.is-focused::after { opacity: 1; transform: translateX(-50%); }
-.timeline.is-out .tl-item.is-focused::after { opacity: 0; }
 
 .timeline-rule {
   position: fixed;

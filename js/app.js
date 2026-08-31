@@ -517,6 +517,11 @@
       state.busy = false;
     });
 
+    // once it has faded, take the line out of the paint entirely
+    window.setTimeout(function () {
+      if (state.level !== 'timeline') el.timeline.style.visibility = 'hidden';
+    }, 480);
+
     // the text on the left arrives once the photo has settled
     showMeta(t, true, 560);
     showHint(HINT_TRIP);
@@ -534,6 +539,7 @@
     setLevel('timeline');
 
     // the line has to be where it will finally sit before we aim at it
+    el.timeline.style.visibility = '';
     snapScroll();
     el.timeline.classList.remove('is-out');
 
