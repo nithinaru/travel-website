@@ -90,23 +90,23 @@ window.TRIPS = [
     "scale": 0.96
   },
   {
-    "id": "nicaragua-march2025",
-    "title": "Nicaragua",
-    "date": "March 2025",
-    "year": 2025,
-    "month": 3,
-    "image": "images/nicaragua-march2025.jpg",
-    "width": 1500,
-    "height": 2000,
-    "scale": 0.75
-  },
-  {
     "id": "honduras-january2025",
     "title": "Honduras",
     "date": "January 2025",
     "year": 2025,
     "month": 1,
     "image": "images/honduras-january2025.jpg",
+    "width": 1500,
+    "height": 2000,
+    "scale": 0.75
+  },
+  {
+    "id": "nicaragua-december2024",
+    "title": "Nicaragua",
+    "date": "December 2024",
+    "year": 2024,
+    "month": 12,
+    "image": "images/nicaragua-december2024.jpg",
     "width": 1500,
     "height": 2000,
     "scale": 0.88
@@ -218,8 +218,8 @@ window.TRIPS = [
     "year": 2024,
     "month": 4,
     "image": "images/arizona-april2024.jpg",
-    "width": 2000,
-    "height": 1500,
+    "width": 1500,
+    "height": 2000,
     "scale": 0.76
   },
   {
@@ -613,8 +613,8 @@ window.TRIPS = [
     "year": 2023,
     "month": 1,
     "image": "images/laos-january2023.jpg",
-    "width": 2000,
-    "height": 1500,
+    "width": 1500,
+    "height": 2000,
     "scale": 0.75
   },
   {
@@ -980,8 +980,8 @@ window.TRIPS = [
     "year": 2017,
     "month": 4,
     "image": "images/italy-april2017.jpg",
-    "width": 2000,
-    "height": 1333,
+    "width": 1333,
+    "height": 2000,
     "scale": 0.72
   },
   {
@@ -1149,8 +1149,8 @@ window.TRIPS = [
     "year": 2015,
     "month": 4,
     "image": "images/costa-rica-april2015.jpg",
-    "width": 2000,
-    "height": 1333,
+    "width": 1333,
+    "height": 2000,
     "scale": 0.7
   },
   {
@@ -1160,8 +1160,8 @@ window.TRIPS = [
     "year": 2015,
     "month": 4,
     "image": "images/panama-april2015.jpg",
-    "width": 2000,
-    "height": 1333,
+    "width": 1333,
+    "height": 2000,
     "scale": 0.84
   },
   {
@@ -1182,8 +1182,8 @@ window.TRIPS = [
     "year": 2013,
     "month": 7,
     "image": "images/alaska-july2013.jpg",
-    "width": 2000,
-    "height": 1333,
+    "width": 1333,
+    "height": 2000,
     "scale": 0.76
   },
   {
@@ -1290,8 +1290,8 @@ window.TRIPS = [
     "year": 2012,
     "month": 5,
     "image": "images/canada-may2012.jpg",
-    "width": 2000,
-    "height": 1333,
+    "width": 1333,
+    "height": 2000,
     "scale": 0.72
   },
   {
