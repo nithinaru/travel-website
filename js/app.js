@@ -2,7 +2,8 @@
    Three levels, one machine.
 
      timeline  every trip on one horizontal line, newest at the left, older
-               and smaller to the right. Sideways moves through time.
+               and smaller to the right. Sideways moves through time; pulling
+               downward opens whichever trip is under the focus line.
      trip      one trip opened up. Clicking a photo zooms it out of the line;
                left and right slide the whole track to the next trip.
      post      the writing. The photo travels up to the top of the page and
@@ -262,7 +263,11 @@
 
   function focusLine() { return state.band.width * 0.3; }
 
-  function updateFocus() {
+  // Which trip the focus line is sitting on at this instant, read straight off
+  // the position on screen. state.index is only ever a record of the last time
+  // this ran, and the glide keeps rewriting it, so anything that has to act on
+  // what the eye is looking at asks here instead.
+  function focusedIndex() {
     var line = focusLine() + state.scrollNow;
     var best = 0;
     var bestDist = Infinity;
@@ -274,13 +279,17 @@
       if (d < bestDist) { bestDist = d; best = i; }
     });
 
-    if (state.level === 'timeline') {
-      state.index = best;
-      state.items.forEach(function (it, i) {
-        it.node.classList.toggle('is-focused', i === best);
-      });
-      setYear(TRIPS[best].year);
-    }
+    return best;
+  }
+
+  function updateFocus() {
+    if (state.level !== 'timeline') return;
+    var best = focusedIndex();
+    state.index = best;
+    state.items.forEach(function (it, i) {
+      it.node.classList.toggle('is-focused', i === best);
+    });
+    setYear(TRIPS[best].year);
   }
 
   function applyScroll() {
@@ -460,6 +469,19 @@
   }
 
   /* ------------------------------------------------------------ open a trip */
+
+  // The one way a gesture or a key is allowed to open a trip. A gesture takes
+  // long enough that the line is nearly always still gliding when it finishes,
+  // so by then state.index has drifted off the photo the eye was on — the old
+  // swipe used it and opened a different trip. Stopping the line first and
+  // choosing from where it actually stands makes that impossible.
+  function openFocused() {
+    if (state.busy || state.level !== 'timeline') return;
+    state.scrollTarget = state.scrollNow;
+    keyIndex = null;
+    updateFocus();                             // the highlight follows the stop
+    openTrip(focusedIndex());
+  }
 
   function openTrip(i) {
     if (state.busy || state.level !== 'timeline' || !state.items[i]) return;
@@ -730,9 +752,9 @@
 
   /* ---------------------------------------------------------------- opening */
 
-  // Opening a trip is a click on that trip, and nothing else. Reading the
-  // element under the pointer means the photo that opens is always the photo
-  // that was clicked, even mid-glide.
+  // A click opens the photo it landed on and no other: the element comes off
+  // the event itself, so it is the right one even mid-glide. Gestures cannot
+  // name an element that way and go through openFocused instead.
   el.timelineLayer.addEventListener('click', function (e) {
     if (state.level !== 'timeline' || dragMoved) return;
     var item = e.target.closest ? e.target.closest('.tl-item') : null;
@@ -743,14 +765,32 @@
 
   var vertical = 0;
   var verticalDecay = null;
+  var verticalLocked = false;
 
+  // One level per pull. Trackpad momentum keeps arriving long after the
+  // fingers have lifted, so once a pull has fired the rest of it is dropped
+  // until the wheel has actually gone quiet — otherwise a single flick on the
+  // timeline lands in the post rather than in the trip.
   function bumpVertical(amount) {
-    vertical += amount;
     window.clearTimeout(verticalDecay);
-    verticalDecay = window.setTimeout(function () { vertical = 0; }, 220);
+    verticalDecay = window.setTimeout(function () {
+      vertical = 0;
+      verticalLocked = false;
+    }, 220);
+    if (verticalLocked) return;
 
-    if (vertical > 150) { vertical = 0; openPost(); }
-    else if (vertical < -150) { vertical = 0; closeTrip(); }
+    vertical += amount;
+
+    if (state.level === 'timeline') {
+      // top of the stack: upward has nowhere to go, so it is dropped rather
+      // than banked up as a debt the next downward pull has to pay off first
+      if (vertical < 0) vertical = 0;
+      if (vertical > 150) { vertical = 0; verticalLocked = true; openFocused(); }
+      return;
+    }
+
+    if (vertical > 150) { vertical = 0; verticalLocked = true; openPost(); }
+    else if (vertical < -150) { vertical = 0; verticalLocked = true; closeTrip(); }
   }
 
   window.addEventListener('wheel', function (e) {
@@ -771,9 +811,14 @@
     var horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
 
     if (state.level === 'timeline') {
-      // the line only ever moves sideways — nothing here opens a trip
-      scrollBy(horizontal ? e.deltaX : e.deltaY);
-      settleScroll();
+      // sideways still walks the line; downward is read as going a level in,
+      // the same pull that opens a post from a trip
+      if (horizontal) {
+        scrollBy(e.deltaX);
+        settleScroll();
+      } else {
+        bumpVertical(e.deltaY);
+      }
       return;
     }
 
@@ -835,6 +880,8 @@
       if (drag.axis === 'x') {
         var fling = clamp(-drag.vx * 11, -900, 900);
         state.scrollTarget = clamp(state.scrollTarget + fling, 0, state.maxScroll);
+      } else if (drag.axis === 'y' && quick && totalY < -80) {
+        openFocused();                    // same pull as trip → post, one level up
       }
     } else if (state.level === 'trip') {
       if (drag.axis === 'x' && Math.abs(totalX) > 60) {
@@ -880,7 +927,7 @@
     if (state.level === 'timeline') {
       if (k === 'ArrowRight') { e.preventDefault(); stepTo(1); }
       if (k === 'ArrowLeft') { e.preventDefault(); stepTo(-1); }
-      if (k === 'ArrowDown' || k === 'Enter' || k === ' ') { e.preventDefault(); openTrip(state.index); }
+      if (k === 'ArrowDown' || k === 'Enter' || k === ' ') { e.preventDefault(); openFocused(); }
     } else if (state.level === 'trip') {
       if (k === 'ArrowRight') { e.preventDefault(); pageTrip(1); }
       if (k === 'ArrowLeft') { e.preventDefault(); pageTrip(-1); }
