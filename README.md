@@ -58,5 +58,6 @@ Your name and the nav links are at the top of the same file.
 
 ## Images
 
-`images/` holds generated placeholders. Replace them with your photos and delete
-`tools/generate-placeholders.py`.
+`images/` holds the trip photos. `og-cover.jpg` is the link-preview image
+(1200×630) shown when the site is shared; `sitemap.xml` lists the page and
+every photo for Google, so add new photos to it when you add a trip.
