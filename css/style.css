@@ -556,13 +556,14 @@ body.level-post .back {
   user-select: text;
 }
 
-/* the book: italic as a title should be, underlined on hover */
-.about-book cite { font-style: italic; }
-.about-book:hover cite {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+/* the book: italic as a title should be, and underlined as a link, the line
+   running under the plane too as on nithinaruswamy.com */
+.about-book {
+  border-bottom: 1px solid var(--ink-soft);
+  transition: border-color 0.3s var(--ease-soft);
 }
+.about-book:hover { border-color: var(--ink); }
+.about-book cite { font-style: italic; }
 
 .about-links {
   display: flex;
