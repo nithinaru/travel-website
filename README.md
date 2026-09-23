@@ -67,6 +67,13 @@ Your name and the nav links are at the top of the same file.
 node tools/build-seo.js
 ```
 
-This regenerates the plain-text trip index in `index.html` (what search
-engines and screen readers read, since the timeline itself is drawn by
-JavaScript) and `sitemap.xml` (the page plus every photo). Commit both.
+This regenerates:
+
+- `js/placeholders.js`: each photo's loading colours. While a photo
+  downloads, its frame shows a soft gradient in the photo's own colours with a
+  shimmer, then the photo fades in. (Needs Python with Pillow.)
+- the plain-text trip index in `index.html`, which is what search engines and
+  screen readers read, since the timeline itself is drawn by JavaScript
+- `sitemap.xml`: the page plus every photo
+
+Commit all three.

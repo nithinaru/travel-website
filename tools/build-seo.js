@@ -5,6 +5,7 @@
  *   - the trip index in index.html, between the trip-index markers: every
  *     trip as plain text (place, date, blurb and the opening of its story)
  *   - sitemap.xml: the page plus every trip photo
+ *   - js/placeholders.js: each photo's loading colours (build-placeholders.py)
  *
  * Run after adding or changing a trip:  node tools/build-seo.js
  */
@@ -13,6 +14,9 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
+
+// the loading colours come first, so a new photo never loads onto a blank box
+require('child_process').execFileSync('python3', [path.join(__dirname, 'build-placeholders.py')], { stdio: 'inherit' });
 const BASE = 'https://travel.nithinaruswamy.com/';
 
 global.window = {};

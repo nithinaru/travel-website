@@ -416,6 +416,52 @@ body.level-post .back {
   background-repeat: no-repeat;
 }
 
+/* A photo frame (see setPhoto in app.js). The frame's own background is the
+   placeholder gradient; the photo sits in .photo-img above it and fades in
+   once it has downloaded. A slow shimmer runs across the placeholder until
+   then. Frames are always sized to the photo's shape, so the two line up. */
+.photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-img {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  background-size: inherit;
+  background-position: inherit;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-soft);
+}
+.photo.is-loaded > .photo-img { opacity: 1; }
+.photo.is-instant > .photo-img { transition: none; }
+
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.32) 50%, transparent 75%);
+  background-size: 250% 100%;
+  animation: photo-shimmer 1.6s ease-in-out infinite;
+  transition: opacity 0.4s var(--ease-soft);
+  pointer-events: none;
+}
+.photo.is-loaded::after { opacity: 0; animation: none; }
+
+@keyframes photo-shimmer {
+  from { background-position: 130% 0; }
+  to { background-position: -130% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo::after { animation: none; }
+  .photo-img { transition: none; }
+}
+
 /* the element that carries a photo between two levels */
 .flyer {
   position: fixed;
@@ -512,7 +558,7 @@ body.level-post .back {
 
 .post-body figure { margin: 2.6em 0; }
 /* the aspect ratio is set per photo from JS, so nothing is cropped */
-.post-body figure div {
+.post-body figure > div {
   width: 100%;
   aspect-ratio: 3 / 2;
   background-size: contain;

@@ -283,6 +283,45 @@
 
   /* ---------------------------------------------------------------- timeline */
 
+  /* ---------------------------------------------------------------- photos */
+
+  // While a photo downloads its frame shows a soft two-tone gradient in the
+  // photo's own colours (js/placeholders.js, built by tools/build-placeholders.py)
+  // with a slow shimmer; the photo fades in over it once it has arrived.
+  var PLACEHOLDERS = window.PLACEHOLDERS || {};
+  var photoLoaded = {};
+
+  function setPhoto(frame, src) {
+    var tones = PLACEHOLDERS[src];
+    frame.classList.add('photo');
+    frame.style.backgroundImage = tones
+      ? 'linear-gradient(180deg,' + tones[0] + ',' + tones[1] + ')'
+      : '';
+    frame.setAttribute('data-photo', src);
+
+    var img = frame.querySelector('.photo-img');
+    if (!img) {
+      img = document.createElement('div');
+      img.className = 'photo-img';
+      frame.appendChild(img);
+    }
+    img.style.backgroundImage = 'url("' + src + '")';
+
+    // already downloaded once: show it straight away, no fade
+    if (photoLoaded[src]) {
+      frame.classList.add('is-loaded', 'is-instant');
+      return;
+    }
+    frame.classList.remove('is-loaded', 'is-instant');
+    var probe = new Image();
+    probe.onload = probe.onerror = function () {
+      photoLoaded[src] = true;
+      // the frame may have been handed another photo in the meantime
+      if (frame.getAttribute('data-photo') === src) frame.classList.add('is-loaded');
+    };
+    probe.src = src;
+  }
+
   // the photos are backgrounds, so they carry their description as a label
   function photoLabel(trip) {
     var where = trip.place && trip.place !== trip.title ? trip.place + ', ' + trip.title : trip.title;
@@ -299,7 +338,7 @@
 
       var shot = document.createElement('div');
       shot.className = 'tl-shot';
-      shot.style.backgroundImage = 'url("' + trip.image + '")';
+      setPhoto(shot, trip.image);
       shot.setAttribute('role', 'img');
       shot.setAttribute('aria-label', photoLabel(trip));
       item.appendChild(shot);
@@ -468,7 +507,7 @@
 
       var shot = document.createElement('div');
       shot.className = 'trip-shot';
-      shot.style.backgroundImage = 'url("' + trip.image + '")';
+      setPhoto(shot, trip.image);
       shot.setAttribute('role', 'img');
       shot.setAttribute('aria-label', photoLabel(trip));
       shot.setAttribute('data-clickable', '');
@@ -746,7 +785,7 @@
 
   function loadPostImages() {
     Array.prototype.forEach.call(el.postText.querySelectorAll('[data-src]'), function (pic) {
-      pic.style.backgroundImage = 'url("' + pic.getAttribute('data-src') + '")';
+      setPhoto(pic, pic.getAttribute('data-src'));
       pic.removeAttribute('data-src');
     });
   }
@@ -760,7 +799,7 @@
     var index = state.index;
 
     el.postText.innerHTML = '';
-    el.postHero.style.backgroundImage = 'url("' + t.trip.image + '")';
+    setPhoto(el.postHero, t.trip.image);
     el.post.hidden = false;
     el.post.style.opacity = '0';
     layoutHero(t.trip);
@@ -906,6 +945,8 @@
       photo.src = about.photo;
       photo.alt = about.photoAlt || '';
       photo.decoding = 'async';
+      var tones = PLACEHOLDERS[about.photo];
+      if (tones) photo.style.background = 'linear-gradient(180deg,' + tones[0] + ',' + tones[1] + ')';
       el.aboutInner.appendChild(photo);
     }
   }
