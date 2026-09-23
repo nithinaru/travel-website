@@ -26,9 +26,26 @@ window.SITE = {
     }
   ],
   "about": {
-    "text": [
-      "I travel when I can and write it down afterwards so I do not lose it.",
-      "This is the whole list, most recent first. Swipe right to walk back through the years, then click a trip to read what happened."
+    "text": "Nithin Aruswamy is a student and traveler based in the San Francisco Bay Area. He's traveled 50+ countries by the age of 18 and has authored the book Jet-Set Teen. The book reached #1 New Release on Amazon for travel guides. Outside of travel, Nithin is an entrepreneur, Kung Fu athlete and tastemaker.",
+    "book": {
+      "title": "Jet-Set Teen",
+      "href": "https://www.amazon.com/dp/B0DF68HLGD"
+    },
+    "photo": "images/about.jpg",
+    "photoAlt": "Nithin Aruswamy standing next to the Y Combinator sign",
+    "links": [
+      {
+        "label": "Email",
+        "href": "mailto:nithin.alaska@gmail.com"
+      },
+      {
+        "label": "Twitter",
+        "href": "https://x.com/nithinaru"
+      },
+      {
+        "label": "Cosmos",
+        "href": "https://www.cosmos.so/nithinaru"
+      }
     ]
   }
 };

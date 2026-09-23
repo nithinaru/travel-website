@@ -824,20 +824,81 @@
 
   /* ------------------------------------------------------------------- about */
 
-  function openAbout() {
+  // the small plane after a linked title; it takes off on hover, as on
+  // nithinaruswamy.com (see .link-icon in the stylesheet)
+  var PLANE = '<svg class="link-icon link-icon-plane" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>';
+
+  var CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15.5,3.5 6.5,12 15.5,20.5" ' +
+    'fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>';
+
+  function externalLink(href) {
+    var a = document.createElement('a');
+    a.href = href;
+    if (!/^mailto:/.test(href)) {
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+    }
+    a.setAttribute('data-clickable', '');
+    return a;
+  }
+
+  function buildAbout() {
+    var about = SITE.about;
     el.aboutInner.innerHTML = '';
-    SITE.about.text.forEach(function (line) {
-      var p = document.createElement('p');
-      p.textContent = line;
-      el.aboutInner.appendChild(p);
-    });
-    var close = document.createElement('div');
+
+    var close = document.createElement('button');
     close.className = 'about-close';
     close.setAttribute('data-clickable', '');
-    close.textContent = 'Close';
+    close.setAttribute('aria-label', 'Close');
+    close.innerHTML = CHEVRON;
     close.addEventListener('click', closeAbout);
-    el.aboutInner.appendChild(close);
+    el.about.appendChild(close);
 
+    var copy = document.createElement('div');
+    copy.className = 'about-copy';
+
+    // the text, with the book title turned into a link
+    var text = document.createElement('p');
+    text.className = 'about-text';
+    var parts = about.book ? about.text.split(about.book.title) : [about.text];
+    parts.forEach(function (part, i) {
+      if (i) {
+        var book = externalLink(about.book.href);
+        book.className = 'about-book';
+        var title = document.createElement('cite');
+        title.textContent = about.book.title;
+        book.appendChild(title);
+        book.insertAdjacentHTML('beforeend', PLANE);
+        text.appendChild(book);
+      }
+      text.appendChild(document.createTextNode(part));
+    });
+    copy.appendChild(text);
+
+    var links = document.createElement('div');
+    links.className = 'about-links';
+    (about.links || []).forEach(function (item) {
+      var a = externalLink(item.href);
+      a.textContent = item.label;
+      links.appendChild(a);
+    });
+    copy.appendChild(links);
+    el.aboutInner.appendChild(copy);
+
+    if (about.photo) {
+      var photo = document.createElement('img');
+      photo.className = 'about-photo';
+      photo.src = about.photo;
+      photo.alt = about.photoAlt || '';
+      photo.decoding = 'async';
+      el.aboutInner.appendChild(photo);
+    }
+  }
+
+  function openAbout() {
+    if (!el.aboutInner.firstChild) buildAbout();
     el.about.hidden = false;
     void el.about.offsetHeight;          // force a reflow so the fade actually runs
     el.about.classList.add('is-open');
