@@ -4,6 +4,12 @@
    so the whole composition scales as one piece.
 --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Type
+   Goudy Bookletter for the name, EB Garamond for the year, Hanken Grotesk for
+   everything around the photos and Newsreader for the stories.
+--------------------------------------------------------------------------- */
+
 :root {
   --fs: 20px;                 /* set from JS: viewport height / 50, clamped */
   --header-h: 114px;          /* set from JS: measured header height */
@@ -24,8 +30,8 @@ html, body {
   overflow: hidden;
   background: var(--paper);
   color: var(--ink);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-               'Helvetica Neue', sans-serif;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, 'Helvetica Neue', sans-serif;
   font-size: 20px;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -127,6 +133,31 @@ body.is-loading .timeline { opacity: 0; }
   font-weight: 400;
   white-space: nowrap;
 }
+
+.header-name {
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-synthesis: none;
+}
+
+.name-word { white-space: nowrap; }
+
+/* registered so the stroke width interpolates; the property itself snaps */
+@property --name-stroke {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Goudy has one weight, so the swell is a same-colour stroke */
+.name-letter {
+  -webkit-text-stroke: var(--name-stroke) currentColor;
+  transition: --name-stroke var(--breath-ms, 2200ms) ease-in-out;
+}
+.name-letter[data-breathing="main"] { --name-stroke: 0.045em; }
+.name-letter[data-breathing="near"] { --name-stroke: 0.02em; }
+
+.header-year { font-family: 'EB Garamond', Georgia, serif; }
+
 
 /* Tabular figures plus a floor of one character width: a digit cell keeps the
    same box whether it holds plain text or a rolling pair, so nothing shifts
@@ -448,9 +479,14 @@ body.level-post .back {
   margin-bottom: 2.2em;
 }
 
-.post-body { font-size: 1.05em; line-height: 1.75; font-weight: 300; }
+.post-body {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 1.1em;
+  line-height: 1.75;
+  font-weight: 300;
+}
 .post-body p { margin: 0 0 1.5em; }
-.post-body h3 { font-size: 1.35em; font-weight: 600; line-height: 1.3; margin: 2.4em 0 0.9em; }
+.post-body h3 { font-family: 'Hanken Grotesk', sans-serif; font-size: 1.35em; font-weight: 600; line-height: 1.3; margin: 2.4em 0 0.9em; }
 
 .post-body blockquote {
   margin: 2.4em 0;
@@ -470,7 +506,7 @@ body.level-post .back {
   background-position: center;
   background-repeat: no-repeat;
 }
-.post-body figcaption { margin-top: 0.7em; font-size: 0.8em; font-weight: 200; color: var(--ink-soft); }
+.post-body figcaption { font-family: 'Hanken Grotesk', sans-serif; margin-top: 0.7em; font-size: 0.8em; font-weight: 200; color: var(--ink-soft); }
 
 /* ---------------------------------------------------------------------------
    About

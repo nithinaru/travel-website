@@ -162,7 +162,7 @@
   }
 
   function buildChrome() {
-    el.siteName.textContent = SITE.name;
+    buildName();
     SITE.nav.forEach(function (item) {
       var a = document.createElement('a');
       a.textContent = item.label;
@@ -704,7 +704,9 @@
       if (block.img) {
         node = document.createElement('figure');
         var pic = document.createElement('div');
-        pic.style.backgroundImage = 'url("' + block.img + '")';
+        // loaded once the hero has landed (see openPost), so decoding them
+        // never competes with the flight
+        pic.setAttribute('data-src', block.img);
         // the photo's own shape, so nothing is cropped or letterboxed
         if (block.w && block.h) pic.style.aspectRatio = block.w + ' / ' + block.h;
         node.appendChild(pic);
@@ -724,6 +726,15 @@
         node.textContent = block.p || '';
       }
       body.appendChild(node);
+    });
+    // the flight may already be over (reduced motion makes it instant)
+    if (!state.busy) loadPostImages();
+  }
+
+  function loadPostImages() {
+    Array.prototype.forEach.call(el.postText.querySelectorAll('[data-src]'), function (pic) {
+      pic.style.backgroundImage = 'url("' + pic.getAttribute('data-src') + '")';
+      pic.removeAttribute('data-src');
     });
   }
 
@@ -757,6 +768,7 @@
     fly(t.trip.image, from, to, 820, 'center', function () {
       el.postHero.style.visibility = '';
       state.busy = false;
+      loadPostImages();
     });
 
     window.setTimeout(function () {
@@ -861,12 +873,16 @@
   // fingers have lifted, so once a pull has fired the rest of it is dropped
   // until the wheel has actually gone quiet — otherwise a single flick on the
   // timeline lands in the post rather than in the trip.
-  function bumpVertical(amount) {
+  function holdMomentum() {
     window.clearTimeout(verticalDecay);
     verticalDecay = window.setTimeout(function () {
       vertical = 0;
       verticalLocked = false;
     }, 220);
+  }
+
+  function bumpVertical(amount) {
+    holdMomentum();
     if (verticalLocked) return;
 
     vertical += amount;
@@ -887,6 +903,15 @@
     if (!el.about.hidden) return;
 
     if (state.level === 'post') {
+      // While the photo is still flying up, and while the momentum of the
+      // pull that opened the article is still arriving, the article stays
+      // put. Otherwise it scrolls out from under the photo and the photo
+      // jumps when it lands.
+      if (state.busy || verticalLocked) {
+        e.preventDefault();
+        holdMomentum();
+        return;
+      }
       // the article scrolls; pulling past the top sends the photo home
       if (el.postScroll.scrollTop <= 0 && e.deltaY < -30) {
         vertical = 0;
@@ -1009,7 +1034,8 @@
   }, { passive: true });
 
   document.addEventListener('touchmove', function (e) {
-    if (state.level !== 'post' && el.about.hidden) e.preventDefault();
+    // the same hold as the wheel: nothing scrolls while the photo flies in
+    if ((state.level !== 'post' || state.busy) && el.about.hidden) e.preventDefault();
   }, { passive: false });
 
   /* -------------------------------------------------------------- keyboard */
@@ -1036,11 +1062,82 @@
     }
   });
 
+  /* -------------------------------------------------------------------- name */
+
+  // The name "breathes" like it does on nithinaruswamy.com: in each word one
+  // random letter at a time slowly thickens, its neighbours a little less,
+  // mostly slow with the odd quick burst.
+
+  function buildName() {
+    el.siteName.textContent = '';
+    el.siteName.setAttribute('aria-label', SITE.name);
+    SITE.name.split(' ').forEach(function (word, w) {
+      if (w) el.siteName.appendChild(document.createTextNode(' '));
+      var span = document.createElement('span');
+      span.className = 'name-word';
+      span.setAttribute('aria-hidden', 'true');
+      Array.prototype.forEach.call(word, function (ch) {
+        var letter = document.createElement('span');
+        letter.className = 'name-letter';
+        letter.textContent = ch;
+        span.appendChild(letter);
+      });
+      el.siteName.appendChild(span);
+    });
+  }
+
+  // one random letter per word at a time; see .name-letter in the stylesheet
+  var BREATH_SLOW = [2200, 3200];
+  var BREATH_FAST = [550, 850];
+  var BREATH_OVERLAP = 0.75;   // how far into the last letter's settle the next starts
+  var BREATH_BURST = 0.22;
+
+  function between(r) { return r[0] + Math.random() * (r[1] - r[0]); }
+
+  function breatheWord(word, startDelay) {
+    var letters = word.querySelectorAll('.name-letter');
+    if (letters.length < 2) return;
+    var last = -1;
+    var burstLeft = 0;
+
+    function mark(i, value) {
+      if (letters[i]) letters[i].setAttribute('data-breathing', value);
+    }
+
+    function breathe() {
+      if (burstLeft === 0 && Math.random() < BREATH_BURST) burstLeft = 2 + Math.floor(Math.random() * 2);
+      var fast = burstLeft > 0;
+      if (fast) burstLeft -= 1;
+      var duration = between(fast ? BREATH_FAST : BREATH_SLOW);
+
+      var i = Math.floor(Math.random() * (letters.length - 1));
+      if (i >= last) i += 1;
+      last = i;
+      word.style.setProperty('--breath-ms', Math.round(duration) + 'ms');
+      mark(i, 'main');
+      mark(i - 1, 'near');
+      mark(i + 1, 'near');
+
+      window.setTimeout(function () {
+        Array.prototype.forEach.call(letters, function (l) { l.removeAttribute('data-breathing'); });
+        window.setTimeout(breathe, duration * BREATH_OVERLAP);
+      }, duration);
+    }
+    window.setTimeout(breathe, startDelay);
+  }
+
+  function startBreathing() {
+    if (reduceMotion) return;
+    Array.prototype.forEach.call(el.siteName.querySelectorAll('.name-word'), function (word, i) {
+      breatheWord(word, 300 + i * 900);
+    });
+  }
+
   /* ------------------------------------------------------------------ intro */
 
   function intro() {
     el.body.classList.remove('is-loading');
-
+    startBreathing();
 
     if (reduceMotion) return;
 
@@ -1099,6 +1196,12 @@
       window.visualViewport.addEventListener('resize', queueRelayout);
     }
     window.setTimeout(intro, 80);
+    // the story face is only used inside articles; fetch it now so the first
+    // one opened doesn't download it mid-animation
+    if (document.fonts) {
+      document.fonts.load('300 1em Newsreader');
+      document.fonts.load('italic 300 1em Newsreader');
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
