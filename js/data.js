@@ -32,7 +32,7 @@ window.SITE = {
       "href": "https://www.amazon.com/dp/B0DF68HLGD"
     },
     "photo": "images/about.jpg",
-    "photoAlt": "Nithin Aruswamy standing next to the Y Combinator sign",
+    "photoAlt": "Nithin Aruswamy with three friends at dusk",
     "links": [
       {
         "label": "Email",
