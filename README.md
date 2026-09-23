@@ -59,5 +59,14 @@ Your name and the nav links are at the top of the same file.
 ## Images
 
 `images/` holds the trip photos. `og-cover.jpg` is the link-preview image
-(1200×630) shown when the site is shared; `sitemap.xml` lists the page and
-every photo for Google, so add new photos to it when you add a trip.
+(1200×630) shown when the site is shared.
+
+## After adding a trip
+
+```bash
+node tools/build-seo.js
+```
+
+This regenerates the plain-text trip index in `index.html` (what search
+engines and screen readers read, since the timeline itself is drawn by
+JavaScript) and `sitemap.xml` (the page plus every photo). Commit both.

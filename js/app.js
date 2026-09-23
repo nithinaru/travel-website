@@ -283,6 +283,12 @@
 
   /* ---------------------------------------------------------------- timeline */
 
+  // the photos are backgrounds, so they carry their description as a label
+  function photoLabel(trip) {
+    var where = trip.place && trip.place !== trip.title ? trip.place + ', ' + trip.title : trip.title;
+    return 'Travel photo from ' + where + ', ' + trip.date;
+  }
+
   function buildTimeline() {
     TRIPS.forEach(function (trip, i) {
       var item = document.createElement('div');
@@ -294,6 +300,8 @@
       var shot = document.createElement('div');
       shot.className = 'tl-shot';
       shot.style.backgroundImage = 'url("' + trip.image + '")';
+      shot.setAttribute('role', 'img');
+      shot.setAttribute('aria-label', photoLabel(trip));
       item.appendChild(shot);
 
       el.timeline.appendChild(item);
@@ -461,6 +469,8 @@
       var shot = document.createElement('div');
       shot.className = 'trip-shot';
       shot.style.backgroundImage = 'url("' + trip.image + '")';
+      shot.setAttribute('role', 'img');
+      shot.setAttribute('aria-label', photoLabel(trip));
       shot.setAttribute('data-clickable', '');
       shot.addEventListener('click', function () { if (!dragMoved) openPost(); });   // no-op without an article
 
