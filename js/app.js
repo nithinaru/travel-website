@@ -170,6 +170,9 @@
       a.setAttribute('data-clickable', '');
       if (item.href === '#about') {
         a.addEventListener('click', function (e) { e.preventDefault(); openAbout(); });
+      } else if (/^https?:/.test(item.href)) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
       }
       el.nav.appendChild(a);
     });

@@ -17,12 +17,12 @@ window.SITE = {
       "href": "#about"
     },
     {
-      "label": "Instagram",
-      "href": "#"
+      "label": "Twitter",
+      "href": "https://x.com/nithinaru"
     },
     {
-      "label": "Email",
-      "href": "mailto:nithin.alaska@gmail.com"
+      "label": "Cosmos",
+      "href": "https://www.cosmos.so/nithinaru"
     }
   ],
   "about": {
