@@ -540,16 +540,18 @@ body.level-post .back {
   width: 100%;
 }
 
+/* set in the stories' face */
 .about-copy {
+  font-family: 'Newsreader', Georgia, serif;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .about-text {
-  font-size: clamp(15px, 1.25vw, 18px);
-  line-height: 1.38;
-  font-weight: 400;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.42;
+  font-weight: 300;
   -webkit-user-select: text;
   user-select: text;
 }
@@ -567,7 +569,8 @@ body.level-post .back {
   flex-direction: column;
   align-items: flex-start;
   margin-top: 1.8em;
-  font-size: clamp(15px, 1.25vw, 18px);
+  font-size: clamp(16px, 1.35vw, 19px);
+  font-weight: 300;
   line-height: 1.45;
 }
 .about-links a { color: var(--ink-soft); transition: color 0.3s var(--ease-soft); }
