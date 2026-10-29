@@ -4,6 +4,7 @@
  *
  *   - the trip index in index.html, between the trip-index markers: every
  *     trip as plain text (place, date, blurb and the opening of its story)
+ *     plus its cover photo as a real <img>, so Google can tie photos to the page
  *   - sitemap.xml: the page plus every trip photo
  *   - js/placeholders.js: each photo's loading colours (build-placeholders.py)
  *
@@ -44,6 +45,7 @@ const items = TRIPS.map((trip) => {
   return [
     '      <li>',
     `        <h2>${esc(trip.title)}</h2>`,
+    trip.image ? `        <img src="${esc(trip.image)}" alt="${esc(trip.title)}, ${esc(trip.date)}" width="${trip.width}" height="${trip.height}" loading="lazy">` : null,
     `        <p>${esc(where)}${esc(trip.date)}.${blurb}</p>`,
     story ? `        <p>${esc(story)}</p>` : null,
     '      </li>',
